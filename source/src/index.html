@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name=viewport content="width=device-width,initial-scale=1,user-scalable=0">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <title>大坝分布</title>
+    <meta name="misapplication-tap-highlight" content="no"/>
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="MobileOptimized" content="320"/>
+    <link rel="shortcut icon" href="/static/images/favicon.png" />
+    <link rel="bookmark" href="/static/images/favicon.png" type="image/x-icon"　/>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translateY(-50%);
+            transform: translateY(-50%);
+            height: 25px;
+            width: 10px;
+            border-radius: 10%;
+            background: #2c3e50;
+            border-top-color: #2980b9;
+            -webkit-animation: fade2 1s infinite;
+            animation: fade2 1s infinite;
+            -webkit-transition: background .2s;
+            transition: background .2s;
+        }
+
+        .loading span{
+            position: absolute;
+            bottom: -25px;
+            left: -25px;
+            white-space: nowrap;
+        }
+
+        .loading:after, .loading:before {
+            content: '';
+            position: absolute;
+            display: block;
+            height: 20px;
+            width: 10px;
+            background: #2c3e50;
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+            transform: translateY(-50%);
+            left: -15px;
+            border-radius: 10%;
+            -webkit-animation: fade1 1s infinite;
+            animation: fade1 1s infinite;
+            -webkit-transition: background .2s;
+            transition: background .2s;
+        }
+        .loading:before {
+            left: 15px;
+            -webkit-animation: fade3 1s infinite;
+            animation: fade3 1s infinite;
+        }
+
+        @-webkit-keyframes fade1 {
+            0% {
+                background: #2980b9;
+            }
+        }
+
+        @keyframes fade1 {
+            0% {
+                background: #2980b9;
+            }
+        }
+        @-webkit-keyframes fade2 {
+            33% {
+                background: #2980b9;
+            }
+        }
+        @keyframes fade2 {
+            33% {
+                background: #2980b9;
+            }
+        }
+        @-webkit-keyframes fade3 {
+            66% {
+                background: #2980b9;
+            }
+        }
+        @keyframes fade3 {
+            66% {
+                background: #2980b9;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<div class="loading">
+</div>
+<!--<div   class=" sidebar-mini  sidebar-collapse ">-->
+<div   class=" sidebar-mini   ">
+    <div id="app"></div>
+</div>
+</body>
+</html>
+<script src="/static/js/mod.js"></script>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/slimScroll/jquery.slimscroll.js"></script>
+<script src="/static/js/layer/layer.js"></script>
+<script>
+ require('./app.js');
+</script>

@@ -1,0 +1,185 @@
+<template>
+    <div>
+        <div class='header' v-show='!inline'>
+            <span class='title'>省市区域查询</span>
+            <el-button style='float:right;color:#20a0ff;margin-top:2px;' @click='onClose' type="text" icon='circle-close'></el-button>
+        </div>
+        <div  class='search-region'>
+
+            <el-collapse v-model="activeName" accordion >
+                <el-collapse-item  name="1">
+
+                    <span slot="title">
+                        全国行政区域
+                    </span>
+                    <el-button v-show='visible' style='width:100%;margin-bottom:5px;' @click='onCheckChange' type='primary'>确定</el-button>
+                    <el-tree show-checkbox
+                             ref='provinceTree'
+                             :data='province'
+                             v-loading='loading'
+                             node-key="RegionCode"
+                             highlight-current
+                             accordion
+                             lazy
+                             @check-change='visible = true'
+                             :load="loadNode" :props="props" >
+                    </el-tree>
+                </el-collapse-item>
+                <el-collapse-item title="自定义区域" name="2">
+                    <el-button v-show='customVisible' style='width:100%;margin-bottom:5px;' @click='onCustomCheckChange' type='primary'>确定</el-button>
+                    <el-tree
+                            highlight-current
+                            accordion
+                            show-checkbox
+                            ref='customTree'
+                            v-loading='loading2'
+                            :data='custom'
+                            lazy
+                            :load='loadCustom'
+                            :props='props'
+                            @check-change='customVisible = true'
+                    >
+
+                    </el-tree>
+
+                </el-collapse-item>
+            </el-collapse>
+
+        </div>
+    </div>
+</template>
+<style lang='less'>
+
+</style>
+<script>
+    import {getDma,getPlaceNames,getCustomPlaceNames,queryByCustomNames} from '../modules/service.js';
+
+    export default{
+        store:['container','rightSpan'],
+        props:['inline'],
+        data(){
+            return{
+                province:[
+                ],
+                custom:[],
+                props:{
+                    label: 'RegionName',
+                    children: 'children'
+                },
+                query:'',
+                activeName:'',
+                loading:true,
+                loading2:true,
+                customVisible:false,
+                visible:false
+            }
+        },
+        computed:{
+            icons(){
+                return this.query?'close':'search';
+            }
+        },
+        methods:{
+            onClose(){
+                this.$emit('close');
+                //this.$refs.provinceTree.setCheckedKeys([]);
+                this.$emit('select',[]);
+            },
+            renderProvince(){
+                getPlaceNames({regionType:''}).then((result)=>{
+                    this.province = this.transData(result);
+                    this.loading = false;
+                })
+            },
+            renderCustom(){
+                this.loading2 = true;
+                getCustomPlaceNames().then((rep)=>{
+                    this.loading2 = false;
+                    this.custom = this.transCustomData(rep.objInfo.dataList);
+                })
+            },
+            transCustomData(data){
+                return data.map((d)=>{
+                    return {RegionName:d.CUSTOMREGIONNAME,children:[],type:'big'};
+                })
+            },
+            loadCustom(node,resolve){
+                if(node.data.type =='big'){
+                    queryByCustomNames({customName:node.data.RegionName}).then((rep)=>{
+                        let list = rep.objInfo.dataList;
+                        resolve(list.map(d=>{
+                            return {RegionName:d.REGIONNAME,Geometry:d.COORDS,Color:d.REGIONCOLOR,type:"custom"};
+                        }));
+                    })
+                }else{
+                    resolve([]);
+                }
+            },
+            loadNode(node,resolve){
+                if(node.id !=1){
+                    if(node.data.type == 'big'){
+                        let result;
+                        this.province.forEach((p)=>{
+                            if(p.RegionName == node.data.RegionName){
+                                result = p;
+                            }
+                        });
+                        resolve(result.children);
+                    }else if(node.data.BigRegionName){
+                        getPlaceNames({regionType:'city',regionCode:node.data.RegionCode}).then((rep)=>{
+                            let list = rep.objInfo.dataList;
+                            resolve(list.map(d=>{
+                            return {RegionName:d.REGIONNAME,Geometry:d.COORDS,Color:d.REGIONCOLOR};
+                        })||[]);
+                        })
+
+                    }else{
+                    resolve([]);
+                    }
+                }
+            },
+            transData(data){
+                let p = {},result = [],index = 0;
+                data.forEach((d)=>{
+                    p[d.BigRegionName] = {children:[]};
+                });
+
+                for(let i in p){
+                    let item = {RegionName:i,children:[],type:'big',RegionCode:index}
+                    index ++;
+                    data.forEach((d)=>{
+                        if(d.BigRegionName == i){
+                            item.children.push(d);
+                        }
+                    })
+                    result.push(item);
+                }
+                return result;
+            },
+            onIconClick(){this.query =''},
+            onCheckChange(){
+                this.$emit('select',this.$refs.provinceTree.getCheckedNodes());
+            },
+             onCustomCheckChange(){
+                this.$emit('select',this.$refs.customTree.getCheckedNodes());
+            }
+        },
+        mounted(){
+            if(!this.inline) {
+                 $('.search-region').slimScroll({ height: document.documentElement.clientHeight - 37 });
+                 $(window).resize(function(){
+                    $('.search-region').slimScroll({ height: document.documentElement.clientHeight - 37 });
+                 });
+            }
+        },
+        watch:{
+            activeName(active){
+                if(active == '1' && this.province.length == 0){
+                   this.renderProvince();
+                }else if(active == '2' && this.custom.length == 0){
+                    this.renderCustom();
+                }
+            }
+        }
+    }
+</script>
