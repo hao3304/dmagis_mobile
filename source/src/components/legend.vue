@@ -3,55 +3,56 @@
         <span class="legend-button" v-show='!info' @click='info = true'>
             <i class="fa fa-eye"></i>
         </span>
-        <transition name='legend'>
-            <el-button v-show='info' @click='info=false' style='position:absolute;color:#20a0ff;margin-top:-15px;left:-5px;z-index:1000;'  type="text" icon='circle-close'></el-button>
-        </transition>
-        <transition name='legend'>
-            <el-tabs type="border-card" v-model='tab' v-show='info' >
-                <el-tab-pane label="地图图例" name="first">
-                    <div >
-                        <div style="text-align:center;height:30px;" >
-                            <el-checkbox-group size='small' v-model='layer.state'>
-                                <el-checkbox label="已核"></el-checkbox>
-                                <el-checkbox label="未核"></el-checkbox>
-                            </el-checkbox-group>
-                        </div>
-                        <div class="control-list">
-                            <el-radio-group size='small' v-model='layer.mode' >
-                                <el-radio-button label="全国"></el-radio-button>
-                                <el-radio-button label="电力"></el-radio-button>
-                                <el-radio-button label="水利"></el-radio-button>
-                                <el-radio-button label="不明"></el-radio-button>
-                            </el-radio-group>
-                        </div>
-                        <ul v-show='type == "normal"' class="legend-list" style="padding-left:30px;">
-                            <li v-for="l in stat" v-if='l.children.length>0'>
-                                <el-checkbox :label="l.legendName" v-model='layer.legend'>
-                                    <img :src="l.iconPath" :alt="l.legendName">
-                                    <span style='font-size:12px;'>{{l.legendName}}</span>
-                                    <a style='font-size:12px;' @click='onLegendClick(l)' href='javascript:;'>[{{l.children.length}}]</a></el-checkbox>
-                            </li>
-                        </ul>
-
+        <mt-popup
+                v-model="info"
+                position="right"
+                style="width:200px;height:100%"
+        >
+            <div class="legend-content" >
+                <div >
+                    <div style="text-align:center;height:30px;" >
+                        <el-checkbox-group size='small' v-model='layer.state'>
+                            <el-checkbox label="已核"></el-checkbox>
+                            <el-checkbox label="未核"></el-checkbox>
+                        </el-checkbox-group>
                     </div>
-                    <div v-show='type == "river"'>
-                        <ul class="legend-list" style="padding-left:30px;">
-                            <li v-for="l in stat" v-if='l.children.length>0'>
-                                <el-checkbox :label="l.legendName" v-model='layer.legend'>
-                                    <img style="width:30px;height:14px;" :src="l.iconPath.replace('icon','icon2')" :alt="l.legendName">
-                                    <span style='font-size:12px;'>{{l.legendName}}</span>
-                                    <a style='font-size:12px;' @click='onRiverLegendClick(l)' href='javascript:;'>[{{l.children.length}}]</a></el-checkbox>
-                            </li>
-                        </ul>
+                    <div class="control-list">
+                        <el-radio-group size='small' v-model='layer.mode' >
+                            <el-radio-button label="全国"></el-radio-button>
+                            <el-radio-button label="电力"></el-radio-button>
+                            <el-radio-button label="水利"></el-radio-button>
+                            <el-radio-button label="不明"></el-radio-button>
+                        </el-radio-group>
                     </div>
+                    <ul v-show='type == "normal"' class="legend-list" style="padding-left:30px;">
+                        <li v-for="l in stat" v-if='l.children.length>0'>
+                            <el-checkbox :label="l.legendName" v-model='layer.legend'>
+                                <img :src="l.iconPath" :alt="l.legendName">
+                                <span style='font-size:12px;'>{{l.legendName}}</span>
+                                <a style='font-size:12px;' @click='onLegendClick(l)' href='javascript:;'>[{{l.children.length}}]</a></el-checkbox>
+                        </li>
+                    </ul>
 
-                </el-tab-pane>
-
-            </el-tabs>
-        </transition>
+                </div>
+                <div v-show='type == "river"'>
+                    <ul class="legend-list" style="padding-left:30px;">
+                        <li v-for="l in stat" v-if='l.children.length>0'>
+                            <el-checkbox :label="l.legendName" v-model='layer.legend'>
+                                <img style="width:30px;height:14px;" :src="l.iconPath.replace('icon','icon2')" :alt="l.legendName">
+                                <span style='font-size:12px;'>{{l.legendName}}</span>
+                                <a style='font-size:12px;' @click='onRiverLegendClick(l)' href='javascript:;'>[{{l.children.length}}]</a></el-checkbox>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </mt-popup>
     </div>
 </template>
 <style lang='less'>
+    .legend-content{
+        background-color: #fff;
+        padding: 20px 0 0 0;
+    }
     .legend-list{
         padding: 0;
         margin:0;
@@ -121,6 +122,7 @@
 
     .control-list{
         height:38px;
+        text-align: center;
     >span{
          font-size: 14px;
          padding-top: 2px;
@@ -129,33 +131,6 @@
 
     }
 
-    .legend-enter-active{
-        animation: legend-in .4s;
-        transform-origin: 100% 0 0;
-    }
-
-
-    .legend-leave-active{
-        animation: legend-leave .4s;
-        transform-origin: 100% 0 0;
-    }
-
-    @keyframes legend-in {
-        0%{
-            transform: scale(0);
-        }
-        100%{
-            transform: scale(1);
-        }
-    }
-    @keyframes legend-leave {
-        0%{
-            transform: scaleY(1);
-        }
-        100%{
-            transform: scaleY(0);
-        }
-    }
 
 </style>
 <script>

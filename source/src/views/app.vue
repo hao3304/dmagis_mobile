@@ -12,12 +12,23 @@
      <router-view style="position:absolute;width:100%" ></router-view>
     </div>
    </div>
+   <div class="x-modal" @click="onHideModal"></div>
   </section>
  </div>
 </template>
 <style lang="less">
  .x-header .mint-header-title{
   font-size: 18px;
+ }
+
+ .x-modal{
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2000;
+  background-color: rgba(0,0,0,.3);
  }
 </style>
 <script>
@@ -36,6 +47,9 @@
             },
             onClick() {
                 $('.sidebar-collapse').removeClass('sidebar-collapse')
+            },
+            onHideModal() {
+                $('.sidebar-mini').addClass('sidebar-collapse')
             }
         },
         components:{

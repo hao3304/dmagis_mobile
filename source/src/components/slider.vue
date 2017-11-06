@@ -22,7 +22,7 @@
         <div>
             <el-menu
                     theme="dark"
-                    default-openeds="[2,3]"
+                    :default-openeds='["2","3"]'
                     >
 
                 <template v-for="n in navs" v-if="n.children.length>0">
