@@ -54,7 +54,9 @@
                         </td>
                     </tr>
                 </table>
-
+                <div style="text-align: center;padding: 0 10px;">
+                    <el-button @click='container.left = false' v-show="view" size='small' icon='search'>查看地图</el-button>
+                </div>
             </fieldset>
         </div>
     </div>
@@ -169,6 +171,7 @@
                     date:'',
                     type:'1'
                   },
+                    view:false,
                   loading:false,
                   pickerOptions0: {
                       disabledDate(time) {
@@ -189,6 +192,7 @@
                     this.filterDam();
                     this.$emit('search',data);
                     this.loading = false;
+                    this.view = true;
                 })
             },
             onClose() {

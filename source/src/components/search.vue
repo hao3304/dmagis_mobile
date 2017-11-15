@@ -1,20 +1,25 @@
 <template>
-        <el-autocomplete
-                style="position: absolute;width: 220px;top:8px;left: 60px;line-height: initial;z-index:1000"
-                class="inline-input"
-                v-model="query"
-                size='small'
-                :icon='icons'
-                :fetch-suggestions="querySearch"
-                placeholder="请输入查询内容"
-                :trigger-on-focus="false"
-                :on-icon-click="handleIconClick"
-                @select="handleSelect"
-        >
-        </el-autocomplete>
+        <div class="search-block">
+                <div class="input-block" @click="onShow">
+                        请输入查询内容
+                </div>
+
+        </div>
 </template>
 <style lang='less'>
-
+        .search-block{
+                position: absolute;width: 100%;top:10px;line-height: initial;z-index:900;
+                .input-block{
+                        background-color: #fff;
+                        border: 1px solid #ccc;
+                        height: 42px;
+                        line-height: 42px;
+                        color: #888;
+                        padding: 0 10px;
+                        border-radius: 4px;
+                        margin: 0 10px;
+                }
+        }
 </style>
 <script>
 
@@ -38,10 +43,14 @@
                 cb(result.map((r)=>{return {value:r.dbmc,...r}}));
             },
             handleSelect(v){
-                  this.search = {...v};
+                this.search = {...v};
             },
             handleIconClick(){
                 this.query = '';
+            },
+            onShow() {
+
+                this.$emit("show");
             }
         }
     }

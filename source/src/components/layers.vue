@@ -1,18 +1,9 @@
 <template>
-    <div class="map-layer" >
+    <div >
 
-        <span class="legend-button" @click="sheetVisible = true">
-            12
+        <span class="legend-button layer-button" @click="sheetVisible = true">
+            <img src="./static/images/mapSwitch.png" alt="">
         </span>
-        <!--<div class="map-layer-card river" v-show='layers.active=="river"||expand' @click='change("river")' :class="{active:layers.active=='river'}">-->
-            <!--<span>流域图</span>-->
-        <!--</div>-->
-        <!--<div class="map-layer-card normal" v-show='layers.active=="normal"||expand' @click='change("normal")' :class="{active:layers.active=='normal'}">-->
-            <!--<span>交通图</span>-->
-        <!--</div>-->
-        <!--<div class="map-layer-card" v-show='layers.active=="earth"||expand' @click='change("earth")' :class="[{active:layers.active=='earth'},getClass]">-->
-            <!--<span>{{getText}}</span>-->
-        <!--</div>-->
         <mt-actionsheet
                 :actions="actions"
                 v-model="sheetVisible">
@@ -20,11 +11,15 @@
     </div>
 </template>
 <style lang='less'>
-    .map-layer{
+    .legend-button.layer-button{
         position: absolute;
-        z-index: 1000;
+        z-index: 999;
         right: 10px;
-        top: 80px;
+        top: 117px;
+        img{
+            width: 25px;
+            margin-top: 4px;
+        }
 
     }
 
@@ -34,10 +29,11 @@
     export default{
         store:['layers'],
         data(){
+            let self = this;
             return {
                 expand:false,
                 actions:[
-                    {name:'卫星图'},{name:'交通图',name:'流域图'}
+                    {name:'卫星图',method:()=>self.change('earth')},{name:'交通图',method:()=>self.change('normal')},{name:'流域图',method:()=>self.change('river')}
                 ],
                 sheetVisible:false
             }
@@ -52,8 +48,10 @@
         },
         methods:{
             change(active) {
-                this.layers.active = active;
-                this.$emit('change',active);
+                if(this.layers.active != active) {
+                    this.layers.active = active;
+                    this.$emit('change',active);
+                }
             }
         }
     }

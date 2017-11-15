@@ -22,20 +22,21 @@
         <div>
             <el-menu
                     theme="dark"
-                    :default-openeds='["2","3"]'
+                    @select="onSelect"
+                    :default-openeds='["0"]'
                     >
 
                 <template v-for="n in navs" v-if="n.children.length>0">
-                    <el-submenu :index="n.id" >
+                    <el-submenu :index="n.url" >
                         <template slot="title">
                             <i :class="n.icon"></i>
                             <span>{{n.name}}</span>
                         </template>
-                        <el-menu-item v-for="c in n.children" :index="c.id">{{c.name}}</el-menu-item>
+                        <el-menu-item v-for="c in n.children" :index="c.url">{{c.name}}</el-menu-item>
                     </el-submenu>
                 </template>
                 <template v-else>
-                    <el-menu-item :index="n.id">
+                    <el-menu-item :index="n.url">
                         <i :class="n.icon"></i>
                         <span>{{n.name}}</span>
                     </el-menu-item>
@@ -64,24 +65,13 @@
                 url:'',
                 d:'',
                 navs:[],
-                collapse:true,
-                index:''
+                collapse:true
             }
         },
         methods:{
             onSelect:function (v,e) {
                 this.container.left = v;
-                switch(v){
-                    case 'search':
-                     this.index = 0;
-                        break;
-                    case 'tool':
-                        this.index = 2;
-                        break;
-                    default:
-                    this.index = 1;
-                    break;
-                }
+                $(".sidebar-mini").addClass('sidebar-collapse');
             }
         },
         watch:{
@@ -114,6 +104,7 @@
                     id:'2',
                     name:'分类查询',
                     icon:'fa fa-cubes fa-size',
+                    url:'0',
                     children:[
                         {
                             id:'2-1',
@@ -141,6 +132,7 @@
                     id:'3',
                     name:'综合分析',
                     icon:'fa fa-pie-chart',
+                    url:'0',
                     children:[
                         {
                             id:'3-1',

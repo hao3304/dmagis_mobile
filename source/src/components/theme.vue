@@ -19,12 +19,12 @@
 
                                     <a @click='onShowChild(c.children,c.ISOSURFACE_NAME,props.row.NAME)' v-show='c.children.length>0' href="javascript:;">[{{c.children.length}}]</a>
                                 </td>
-                                <td>
-                                    <el-button type='text' @click='onEditArea(c,props.row)' icon='edit'>
-                                    </el-button>
-                                    <el-button type='text' icon='delete' @click='onDelArea(c,props.row)'>
-                                    </el-button>
-                                </td>
+                                <!--<td>-->
+                                    <!--&lt;!&ndash;<el-button type='text' @click='onEditArea(c,props.row)' icon='edit'>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</el-button>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<el-button type='text' icon='delete' @click='onDelArea(c,props.row)'>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</el-button>&ndash;&gt;-->
+                                <!--</td>-->
                             </tr>
                         </table>
                     </template>
@@ -34,15 +34,15 @@
                     <div>
                         <el-button type='text' icon='search' @click='onShowTheme(row)'>
                         </el-button>
-                        <el-button type='text' icon='edit' @click='onEditTheme(row)'>
-                        </el-button>
-                        <el-button type='text' @click='onDelTheme(row)' icon='delete'>
-                        </el-button>
-                        <el-button type='text' @click='onAddArea(row.ID)'>
-                            <el-tooltip class="item" effect="dark" content="添加等值面" placement="right">
-                                <i class="el-icon-plus"></i>
-                            </el-tooltip>
-                        </el-button>
+                        <!--<el-button type='text' icon='edit' @click='onEditTheme(row)'>-->
+                        <!--</el-button>-->
+                        <!--<el-button type='text' @click='onDelTheme(row)' icon='delete'>-->
+                        <!--</el-button>-->
+                        <!--<el-button type='text' @click='onAddArea(row.ID)'>-->
+                            <!--<el-tooltip class="item" effect="dark" content="添加等值面" placement="right">-->
+                                <!--<i class="el-icon-plus"></i>-->
+                            <!--</el-tooltip>-->
+                        <!--</el-button>-->
                     </div>
                 </el-table-column>
             </el-table>

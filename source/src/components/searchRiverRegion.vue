@@ -241,7 +241,7 @@
             onShow(type) {
                 this.canClick = false;
                 let checkList = this.$refs.tree.getCheckedNodes();
-
+                this.container.left = false;
                 checkList = checkList.map(c=>c.id);
 
                 let result = this.source.filter(l=>{
@@ -251,23 +251,25 @@
                     result = this.source;
                     this.$refs.tree.setCheckedKeys(this.source.map(s=>s.id));
                 }
-                this.$emit('check',result.map(r=>{
-                    return {
-                            "type":"Feature",
-                            "properties": { "name":r.name,"id":r.id},
-                            "geometry": {
-                                "type": "MultiPolygon",
-                                "coordinates":r.area
-                            }
-                        }
-                }),type)
+               this.$nextTick(()=>{
+                   this.$emit('check',result.map(r=>{
+                       return {
+                           "type":"Feature",
+                           "properties": { "name":r.name,"id":r.id},
+                           "geometry": {
+                               "type": "MultiPolygon",
+                               "coordinates":r.area
+                           }
+                       }
+                   }),type)
+               })
             }
         },
         components:{
             searchRegion
         },
         mounted(){
-           $(this.$el).find('.search-region').slimScroll({ height: document.documentElement.clientHeight - 37 });
+           $(this.$el).find('.search-region').slimScroll({ height: document.documentElement.clientHeight - 85 });
             this.getData();
         }
     }

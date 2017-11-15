@@ -2,13 +2,19 @@
  * Created by jack on 17/2/5.
  */
 
+fis.set('path','/app');
+
 const vueify = require('fis3-parser-vueify');
+
+fis.hook('relative');
+fis.match('**', {
+    relative: true
+})
 
 fis.hook('commonjs', {
     baseUrl: './src',
     extList: ['.js', '.jsx', '.es', '.ts', '.vue']
 });
-
 
 fis.match('/{node_modules,src}/**.js',{
     isMod:true,
@@ -44,12 +50,12 @@ fis.match('::package', {
     postpackager: fis.plugin('loader')
 });
 
-fis.match('/src/**',{
-    release:'/static/$0'
+fis.match('/{src,node_modules}/**',{
+    release:fis.get('path')+'/static/$0'
 }).match('/static/**',{
-    release:'$0'
+    release:fis.get('path')+'$0'
 }).match('/src/(*.html)',{
-    release:'$1'
+    release:fis.get('path')+'/$1'
 });
 
 fis.match('{/static/css/*.less,/src/**.css}', {
@@ -62,8 +68,7 @@ fis.match('{/static/css/*.less,/src/**.css}', {
     }),
     optimizer: fis.plugin('clean-css')
 }).match('/{static,src,node_modules}/**.{css,less}',{
-    packTo:'/static/pkg/all.css',
-    useHash:true
+    packTo:'/static/pkg/all.css'
 });
 
 fis.match('/src/(**.vue)', {
@@ -78,18 +83,21 @@ fis.match('/src/(**.vue)', {
 fis.unhook('components');
 fis.hook('node_modules');
 
-fis.media('prod').match('/{node_modules,src}/**.{js,vue}',{
-    packTo:'/static/pkg/bundle.js', useHash:true
-}).match('/static/**.js',{packTo:'/static/pkg/common.js',useHash:true})
+fis.media('prod')
+    .match('/static/js/**.js',{packTo:'/static/pkg/common.js'})
+    .match('/{node_modules,src}/**.{js,vue}',{
+        packTo:'/static/pkg/bundle.js'
+    })
     .match('::package',{
         postpackager: [fis.plugin('compression'),  fis.plugin('loader')]
-    }).match('**',{
-        deploy:[
-            fis.plugin('zip',{filename:'app.zip'}),
-
-            fis.plugin('local-deliver', {
-                to: '../'
-            })
-        ]
-})
+    })
+    .match('**', {
+    deploy: [
+        fis.plugin('skip-packed', {
+        }),
+        fis.plugin('local-deliver', {
+            to: '../../../HBuilderProjects/'
+        })
+    ]
+});
 

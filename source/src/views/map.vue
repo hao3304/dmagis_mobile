@@ -1,6 +1,6 @@
 <template>
     <el-row style="height: 100%" :class="{'show-tip':tooltip&&zoom>=8,'small-icon':zoom<8&&zoom>6,'mini-icon':zoom<=6}"  >
-        <el-col :span='5' class='main-wrap' v-show='container.left'  >
+        <el-col :span='24' class='main-wrap' v-show='container.left&&!container.right'  >
             <emergency @click='onEmergencyClick' @close='onCloseLeft' v-if='container.left == "emergency"' ></emergency>
             <rain  @close='onCloseLeft' @search='onSearchRainFall' v-if='container.left == "rainfall"' ></rain>
             <theme @close='onCloseLeft'  @search='onSearchRainFall' @filter='onThemeFilter'   v-if='container.left == "theme"' ></theme>
@@ -12,23 +12,29 @@
             <river-region ref='region' @close='onCloseRiverRegion' @check='onRegionCheck' v-show='container.left =="river-region"'></river-region>
             <toolbar @toolbar-click="onToolbarClick" @close='onCloseLeft' v-show='container.left =="tool"' class='toolbar'></toolbar>
         </el-col>
-        <el-col :span="center_span" class='main-wrap' style="height: 100%;position:relative">
+        <el-col :span="24" class='main-wrap'  v-show='!container.left&&!container.right'  style="height: 100%;position:relative">
             <div id="map"  style="height: 100%"></div>
-            <clegend :type='legend' @change='filterDam' @area-change='onAreaChange'  style="position: absolute;z-index: 1000;right: 10px;top:50px;"></clegend>
-            <layers ref='layers' @change='onLayerChange' style="bottom: 10px;right: 10px;"></layers>
-            <!--<search></search>-->
+            <clegend :type='legend' @change='filterDam' @area-change='onAreaChange'  style="position: absolute;z-index: 1000;right: 10px;top:70px;"></clegend>
+            <layers ref='layers' @change='onLayerChange' ></layers>
+            <search @show="popup = true"></search>
+
+            <div v-show="rightSpan.list&&rightSpan.list.length>0" @click="onCloseRiverRegion" style="display:none;position: absolute; z-index: 900; left: 40px; top: 70px;">
+                <span class="legend-button"><img src="./static/images/clear.png" alt="" style="width: 25px; margin-top: 4px;">
+                </span>
+            </div>
+            <pos @get-position='onGetPos'></pos>
             <!--<control @tooltip-change='onTooltipChange'></control>-->
             <!--<cheader style='position:absolute;z-index:1000;right:10px;top:0;'></cheader>-->
         </el-col>
-        <el-col :span='6'  v-show='container.right' class='main-wrap' >
+        <el-col :span='24'  v-show='container.right' class='main-wrap' >
             <div class='header'>
                 <span class='title'>{{rightSpan.name}}</span>
                 <el-button style='float:right;color:#20a0ff;margin-top:2px;' @click='onCloseRight' type="text" icon='circle-close'></el-button>
-                <el-button @click='onExport' style='float:right;color:#20a0ff;margin-top:2px;margin-right:20px;' type="text">
-                    <i class="fa fa-download"></i>
+                <el-button @click='mapView' style='float:right;color:#20a0ff;margin-top:2px;margin-right:20px;' type="text">
+                    查看地图
                 </el-button>
             </div>
-            <el-table :height="height - 30"
+            <el-table :height="height - 80"
                       highlight-current-row @row-click='flyTo'
                       border class='small-table'
                       :data="currentList"
@@ -194,7 +200,31 @@
                     </div>
         </div>
 
-        <el-dialog size='tiny' v-model='around_dialog'>
+        <mt-popup
+                v-model="popup"
+                position="bottom"
+                style="width:100%;height:100%"
+        >
+
+            <div class="mint-searchbar">
+                <div class="mint-searchbar-inner">
+                    <i class="mintui mintui-search"></i>
+                    <input type="search" v-model="search_value" placeholder="搜索" class="mint-searchbar-core"></div>
+                <a class="mint-searchbar-cancel" @click="onCancelSearch" style="">取消</a>
+            </div>
+
+            <div style="position: absolute;top:52px;bottom: 0;left: 0;right:0;overflow-y: scroll;">
+                <a @click="onSearchClick(n)"  v-for="n in search_list" class="mint-cell"><!---->
+                    <div class="mint-cell-left"></div>
+                    <div class="mint-cell-wrapper"><div class="mint-cell-title"><!---->
+                        <span class="mint-cell-text">{{n.dbmc}}</span> <!----></div>
+                        <div class="mint-cell-value"><span>{{n.kind}}</span></div></div>
+                    <div class="mint-cell-right"></div> <!---->
+                </a>
+            </div>
+
+        </mt-popup>
+        <el-dialog style="width:400px;" v-model='around_dialog'>
             <el-form :model='around_form' label-width='60px' :rules='rules2' ref='around-form' >
                 <el-row>
                     <el-col :span=24 >
@@ -347,7 +377,7 @@
     import { getDma,setDbPosition,delDam,getDbList,getRivers } from '../modules/service';
     window.Spinner = require('spin');
     require('leaflet-spin')(L);
-    import '../components/zoomhome';
+//    import '../components/zoomhome';
     import 'leaflet-editable';
     import 'leaflet-measure-path';
     import 'leaflet-contextmenu';
@@ -369,6 +399,7 @@
     import rain from '../components/rain.vue';
     import control from '../components/control.vue';
     import theme from '../components/theme.vue';
+    import position from '../components/position.vue';
     import section from '../components/section.vue';
     import randomColor from 'randomcolor'
     const jsts = require('jsts');
@@ -393,21 +424,22 @@
     }
 
     export default{
-        store:['dam','layer','rightSpan','search','container','login','addList','_map','layers'],
+        store:['dam','layer','rightSpan','search','container','login','addList','_map','layers','showReset'],
         data() {
             return {
                 height: document.documentElement.clientHeight - 40,
-                zoom:14,
+                zoom:4,
                 //center:[30.46336022632844,116.25354766845705],
                 center:[38,115],
                 minZoom:2,
-                tooltip:false,
+                tooltip:true,
                 list:[],
                 dialog:false,
                 showArea:true,
                 editDbName:'',
                 type:'add',
                 form:model(),
+                popup:false,
                 provinces:province,
                 aroundSearch:false,
                 rules:{
@@ -442,10 +474,21 @@
                     distance:null
                 },
                 currentPage:1,
-                legend:'normal'
+                legend:'normal',
+                search_value:''
             }
         },
         computed:{
+            search_list() {
+              if(this.search_value.length>0) {
+                 return this.dam.list.filter(d=>{
+                     return d.dbmc.indexOf(this.search_value)>-1;
+                 })
+
+              }  else{
+                  return [];
+              }
+            },
             center_span(){
                 let span = 24;
                 if(this.container.left){
@@ -530,8 +573,8 @@
                     ]
                 });
                 this.map.on('click',(e)=>console.log(e))
-                L.control.zoom({position:'bottomleft'}).addTo(this.map);
-                L.control.zoomhome({position:'topleft'}).addTo(this.map);
+//                L.control.zoom({position:'bottomleft'}).addTo(this.map);
+//                L.control.zoomhome({position:'topleft'}).addTo(this.map);
 
                 this.normal = L.tileLayer.chinaProvider('Google.Normal.Map',{maxZoom:18,minZoom:2}).addTo(this.map);
                 this.earth =new L.layerGroup();
@@ -543,7 +586,7 @@
                      format:'image/png'
                  }).addTo(this.map); */
 
-                this.markerLayers = new L.featureGroup().addTo(this.map);
+                this.markerLayers = new L.markerClusterGroup({maxClusterRadius:40}).addTo(this.map);
                 this.measureLayers = new L.featureGroup().addTo(this.map);
                 this.regionLayers = new L.featureGroup().addTo(this.map);
                 this.typhoonLayers = new L.featureGroup().addTo(this.map);
@@ -623,6 +666,14 @@
                 this.map.spin(true);
                 this.getDamList();
                 this._map = this.map;
+            },
+            mapView(){
+              this.container.left = false;
+              this.container.right = false;
+                let bounds = this.markerLayers.getBounds();
+                if(bounds._northEast){
+                    this.map.fitBounds(bounds);
+                }
             },
             renderMarkers(rep,type){
                 this.markerLayers.clearLayers();
@@ -706,7 +757,7 @@
                         }]
 
                     }).addTo(this.markerLayers);
-                    marker.bindPopup('<iframe src="/detail.html?id='+m.dbid+'" style="border:none;width:360px;height:300px;" ></iframe>',{maxWidth:352,className:'custom-popup',minHeight:300});
+                    marker.bindPopup('<iframe src="./detail.html?id='+m.dbid+'" style="border:none;width:360px;height:300px;" ></iframe>',{maxWidth:352,className:'custom-popup',minHeight:300});
 
                     marker.on('mouseover',(m)=>{
                         if(this.legend !='river') {
@@ -740,15 +791,32 @@
                 return randomColor({luminosity: 'light'})
             },
             getDamList(){
+                let data = this.$ls.get('data');
+                let t = false;
+                if(data&&data.length>0) {
+                    this.list = data;
+                    this.dam.list = data;
+                    this.dam.all = data;
+                    this.dam.source = data;
+                    t = true;
+                    this.map.spin(false);
+                }
+
                 getDma().then((rep)=>{
-                    this.list = rep;
-                    this.dam.list = rep;
-                    this.dam.all = rep;
-                    this.dam.source = rep;
+                    if(!t) {
+                        this.list = rep;
+                        this.dam.list = rep;
+                        this.dam.all = rep;
+                        this.dam.source = rep;
+                    }
                     // this.renderMarkers(this.list);
                     this.$ls.set('data',rep);
                     this.count = this.markerLayers.getLayers().length;
                 });
+            },
+            onSearchClick(d){
+              this.search = d;
+              this.popup = false;
             },
             onToolbarClick(type){
                 switch (type){
@@ -938,7 +1006,6 @@
                     if(this.container.right ){
                         this.rightSpan.list = list.filter(l=>l.isShow);
                     }
-                    debugger
                     setTimeout(()=>this.renderMarkers(list,'river'),100);
                 }
 
@@ -982,6 +1049,10 @@
             },
             filterTag(value,row){
                 return row.province == value;
+            },
+            onCancelSearch(){
+                this.popup = false;
+                this.search_value = "";
             },
             onRegionSelect(region){
                 this.regionLayers.clearLayers();
@@ -1141,8 +1212,17 @@
                 this.dialog = true;
             },
             onGetPos(position){
-                this.form.longitude = position.lng;
-                this.form.latitude = position.lat;
+                this.map.spin(true);
+                plus.geolocation.getCurrentPosition((rep)=>{
+                    this.posLayers.clearLayers();
+                    this.map.setView([rep.coords.latitude,rep.coords.longitude],16);
+                    let icon = new L.icon({iconUrl:'./static/images/pos.png',iconSize:[32,32]})
+                    new L.marker([rep.coords.latitude,rep.coords.longitude],{icon:icon}).addTo(this.posLayers);
+//                    L.circle([rep.coords.latitude,rep.coords.longitude], parseInt(rep.coords.accuracy),{weight:1}).addTo(this.posLayers);
+                    this.map.spin(false);
+                },()=>{
+                    this.map.spin(false);
+                },{geocode:true,provider:'amap'})
             },
             onGetPolygon(area){
                 this.form.area = area;
@@ -1206,8 +1286,8 @@
             onRegionCheck(checked, type) {
                 this.regionLayers.clearLayers();
                 this.regionCheck = true;
-                this.map.spin(true);
                 this.showArea = false;
+                this.map.spin(true);
                 this.map.removeLayer(this.areaLayers);
                 setTimeout(()=>{
                     this.riverRegionLayers.clearLayers();
@@ -1266,6 +1346,7 @@
             },
             onCloseRiverRegion() {
                 this.onCloseLeft();
+                this.rightSpan.list = [];
                 if(this.regionCheck) {
                     this.map.spin(true);
                     this.map.removeLayer(this.wmsLayer);
@@ -1545,9 +1626,9 @@
                 }
             },
             'container.left'(a,b){
-                if(b == 'river-region'){
-                    this.onCloseRiverRegion();
-                }
+//                if(b == 'river-region'){
+//                    this.onCloseRiverRegion();
+//                }
             },
             search(v){
                 this.flyTo(v);
@@ -1619,13 +1700,13 @@
             searchRiver,
             search,
             cheader,
-            pos,
             itree,
             riverRegion,
             emergency,
             rain,
             theme,
             control,
+            pos:position,
             xSection:section
         },
         mounted() {

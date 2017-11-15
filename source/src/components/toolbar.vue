@@ -4,31 +4,31 @@
             <span class='title'>工具栏</span>
             <el-button style='float:right;color:#20a0ff;margin-top:2px;' @click='onClose' type="text" icon='circle-close'></el-button>
         </div>
-        <el-row :gutter='5' style='margin-top:10px'>
-            <el-col :span='8' style='text-align:center;'>
-                <a href='javascript:;' class='toolbar-btn' :class="{active:active =='Polyline'}" @click='onToolbarClick("polyline")'>
-                    <i class='iconfont icon-zhexian'></i>
-                    <p>折线</p>
-                </a>
-            </el-col>
-            <el-col :span='8' style='text-align:center;'>
-                <a href='javascript:;' class='toolbar-btn'  :class="{active:active =='Rectangle'}" @click='onToolbarClick("Rectangle")'>
-                    <i class='iconfont icon-juxing'></i>
-                    <p>矩形</p>
-                </a>
-            </el-col>
-            <el-col :span='8' style='text-align:center;'>
-                <a href='javascript:;' class='toolbar-btn' :class="{active:active =='Polygon'}"  @click='onToolbarClick("Polygon")'>
-                    <i class='iconfont icon-duobianxing'></i>
-                    <p>多边形</p>
-                </a>
-            </el-col>
-            <el-col :span='8' style='text-align:center;'>
-                <a href='javascript:;' class='toolbar-btn'  :class="{active:active =='Circle'}" @click='onToolbarClick("Circle")'>
-                    <i class='iconfont icon-yuanxing'></i>
-                    <p>圆形</p>
-                </a>
-            </el-col>
+        <!--<el-row :gutter='5' style='margin-top:10px'>-->
+            <!--<el-col :span='8' style='text-align:center;'>-->
+                <!--<a href='javascript:;' class='toolbar-btn' :class="{active:active =='Polyline'}" @click='onToolbarClick("polyline")'>-->
+                    <!--<i class='iconfont icon-zhexian'></i>-->
+                    <!--<p>折线</p>-->
+                <!--</a>-->
+            <!--</el-col>-->
+            <!--<el-col :span='8' style='text-align:center;'>-->
+                <!--<a href='javascript:;' class='toolbar-btn'  :class="{active:active =='Rectangle'}" @click='onToolbarClick("Rectangle")'>-->
+                    <!--<i class='iconfont icon-juxing'></i>-->
+                    <!--<p>矩形</p>-->
+                <!--</a>-->
+            <!--</el-col>-->
+            <!--<el-col :span='8' style='text-align:center;'>-->
+                <!--<a href='javascript:;' class='toolbar-btn' :class="{active:active =='Polygon'}"  @click='onToolbarClick("Polygon")'>-->
+                    <!--<i class='iconfont icon-duobianxing'></i>-->
+                    <!--<p>多边形</p>-->
+                <!--</a>-->
+            <!--</el-col>-->
+            <!--<el-col :span='8' style='text-align:center;'>-->
+                <!--<a href='javascript:;' class='toolbar-btn'  :class="{active:active =='Circle'}" @click='onToolbarClick("Circle")'>-->
+                    <!--<i class='iconfont icon-yuanxing'></i>-->
+                    <!--<p>圆形</p>-->
+                <!--</a>-->
+            <!--</el-col>-->
         </el-row>
         <el-row :gutter='5' style='margin-top:10px'>
             <el-col :span='8' style='text-align:center;'>
@@ -106,6 +106,7 @@
 </style>
 <script>
     export default{
+        store:['container'],
         data(){
             return{
                 active:''
@@ -115,6 +116,9 @@
             onToolbarClick(type){
                 this.active = type=='clear'?'':type;
                 this.$emit('toolbar-click',type);
+                this.$nextTick(()=>{
+                    this.container.left = false;
+                })
             },
             onClose(){
                 this.$emit('close');

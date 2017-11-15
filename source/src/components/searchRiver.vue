@@ -63,7 +63,7 @@
     }
 </style>
 <script>
-    import { getRiverDam, getRivers,querySubRiverIDs,addSection,queryHaveDamRiverList } from '../modules/service.js';
+    import {  getRivers,querySubRiverIDs,addSection,queryHaveDamRiverList } from '../modules/service.js';
     import xSection from './section.vue';
     import 'babel-polyfill';
 
@@ -210,7 +210,7 @@
                         }
                     });
                 }
-                if(node.children.length>0) {
+                if(node.children&&node.children.length>0) {
                     loop(node.children);
                 }
 
@@ -252,7 +252,7 @@
                                 shade: false,
                                 maxmin: true, //开启最大化最小化按钮
                                 area: ['893px', '500px'],
-                                content: `/profile.html?sort=1&ids=${this.ids} `
+                                content: `./profile.html?sort=1&ids=${this.ids} `
                             })
 
                         }else{
@@ -279,7 +279,7 @@
                     shade: false,
                     maxmin: true, //开启最大化最小化按钮
                     area: ['893px', '500px'],
-                    content: `/profile.html?sort=1&ids=${this.ids} `
+                    content: `./profile.html?sort=1&ids=${this.ids} `
                 })
 
             },
@@ -341,24 +341,6 @@
                                     self.onNodeClick(data,'section');
                                 }
                             }
-                        }),
-                        h('i',{
-                            class:{
-                                'fa':true,
-                                'fa-check-circle':true
-                            },
-                            style: {
-                                fontSize:'12px'
-                            },
-                            domProps:{
-                                innerHTML:'自定义'
-                            },
-                            on:{
-                                click(e){
-                                    e.stopPropagation();
-                                    self.onCustomClick(data);
-                                }
-                            }
                         })
                     ])
                 ])
@@ -373,7 +355,7 @@
                  $('.search-river').slimScroll({ height: document.documentElement.clientHeight - 37 });
               }); */
 
-            $('.search-river').height(document.documentElement.clientHeight - 37);
+            $('.search-river').height(document.documentElement.clientHeight - 85);
             this.render();
         }
     }

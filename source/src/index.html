@@ -107,6 +107,20 @@
 <script src="/static/js/jquery.js"></script>
 <script src="/static/js/slimScroll/jquery.slimscroll.js"></script>
 <script src="/static/js/layer/layer.js"></script>
+<script src="/static/js/mui.js"></script>
+<script>
+    document.addEventListener('touchstart',function(){
+        return false;
+    },true);
+    document.addEventListener('plusready',function(){
+        plus.navigator.setStatusBarBackground('#26a2ff');
+        if(plus.navigator.isImmersedStatusbar()){
+            plus.navigator.setStatusBarStyle('UIStatusBarStyleBlackOpaque');
+        }
+        plus.screen.lockOrientation("portrait-primary");
+    },false);
+
+</script>
 <script>
  require('./app.js');
 </script>

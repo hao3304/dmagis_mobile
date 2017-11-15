@@ -35,5 +35,6 @@ export const store = {
     addList:[], /*没有位置需要添加的大坝*/
     layers:{
         active:'normal'
-    }
+    },
+    showReset:false
 }

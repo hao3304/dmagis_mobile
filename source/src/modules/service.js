@@ -2,7 +2,8 @@
  * Created by jack on 16/11/14.
  */
 // const prefix = 'http://122.224.167.105/GIS/searchDam/getLegendList.jsp';
-const prefix = '';
+const prefix = 'http://www.dam.com.cn';
+const prefix2= 'http://120.24.210.86';
 
 function co(func) {
     return $.Deferred(function(def){
@@ -47,16 +48,17 @@ export const getPlaceNames = (params={})=>{
     if(params.regionType){
         return co($.getJSON(`/DamGIS/placename/placename!findPlaceNames.action`,{regionType:'city',...params}));
     }else{
-        return co($.getJSON('/static/json/region.json'));
+        return co($.getJSON('./static/json/region.json'));
     }
 };
 
-export const getCustomPlaceNames = ()=>co($.get('/DamGIS/placename/placename!findCustomPlaceNames.action'));
-export const getRivers = ()=>co($.get('/GIS/searchDam/getRiverTree.jsp'));
+
+export const getCustomPlaceNames = ()=>co($.get(prefix2 + '/DamGIS/placename/placename!findCustomPlaceNames.action'));
+export const getRivers = ()=>co($.get(prefix + '/GIS/searchDam/getRiverTree.jsp'));
 export const getRiverDam = (params)=>co($.get('/DataService.svc/RiverDam',params));
-export const queryByCustomNames = (params)=>co($.get('/DamGIS/placename/placename!findCustomPlaceNameListByCustomName.action',params));
-export const querySubRiverIDs = (params)=>co($.get('/DamGIS/river/river!findSubRivers.action',params));
-export const queryHaveDamRiverList = (params)=>co($.get('/DamGIS/river/river!queryHaveDamRiverList.action',params));
+export const queryByCustomNames = (params)=>co($.get(prefix2 + '/DamGIS/placename/placename!findCustomPlaceNameListByCustomName.action',params));
+export const querySubRiverIDs = (params)=>co($.get(prefix2 + '/DamGIS/river/river!findSubRivers.action',params));
+export const queryHaveDamRiverList = (params)=>co($.get(prefix2 + '/DamGIS/river/river!queryHaveDamRiverList.action',params));
 
 // export const getRegion = ()=>co($.get('http://api.rsafety.com.cn:8006/geoserver/nyc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nyc:new_dam_region&maxFeatures=50&outputFormat=JSON'));
 export const getRegion = ()=>co($.get('http://223.93.186.208:8006/geoserver/nyc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nyc:dam_region&maxFeatures=50&outputFormat=JSON'));

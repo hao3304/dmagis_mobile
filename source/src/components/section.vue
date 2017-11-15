@@ -7,20 +7,20 @@
                     <div>
                         <el-button type='text' @click='onShowSection(row)' icon='search'>
                         </el-button>
-                        <el-button type='text' icon='edit' @click='onEditSection(row)'>
-                        </el-button>
-                        <el-button type='text' icon='delete' @click='onDelSection(row)'></el-button>
+                        <!--<el-button type='text' icon='edit' @click='onEditSection(row)'>-->
+                        <!--</el-button>-->
+                        <!--<el-button type='text' icon='delete' @click='onDelSection(row)'></el-button>-->
                     </div>
                 </el-table-column>
             </el-table>
 
-            <div style="padding:5px;">
-                <el-button icon='plus' @click='onAdd' type='primary' size='small' style='width:100%;'>新增</el-button>
-            </div>
+            <!--<div style="padding:5px;">-->
+                <!--<el-button icon='plus' @click='onAdd' type='primary' size='small' style='width:100%;'>新增</el-button>-->
+            <!--</div>-->
         </div>
 
 
-        <el-dialog size='large' top='5%' :visible='sectionDialog' :before-close='onCloseDialog' :title='dialogTitle' >
+        <el-dialog  top='0' :visible='sectionDialog' :before-close='onCloseDialog' :title='dialogTitle' >
            <div @click="ztree = false" >
                <el-row>
                    <el-input placeholder='请输入名称' v-model='name' disabled></el-input>
@@ -165,8 +165,8 @@
                     shadeClose: false,
                     shade: false,
                     maxmin: true, //开启最大化最小化按钮
-                      area: ['893px', '500px'],
-                      content: `/profile.html?sort=1&ids=${this.ids} `
+                      area: ['100%', '100%'],
+                      content: `./profile.html?sort=1&ids=${this.ids} `
                 })
                 //this.dialogTitle = '新增剖面'
             },

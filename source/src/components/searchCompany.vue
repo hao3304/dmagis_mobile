@@ -185,7 +185,7 @@
 //            $(window).resize(function(){
 //                $('.search-company').slimScroll({ height: document.documentElement.clientHeight - 37 });
 //            });
-            $('.search-company').height(document.documentElement.clientHeight - 37);
+            $('.search-company').height(document.documentElement.clientHeight - 85);
             this.render();
         }
     }

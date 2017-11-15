@@ -1,7 +1,7 @@
 <template>
     <div>
         <span class="legend-button" v-show='!info' @click='info = true'>
-            <i class="fa fa-eye"></i>
+           <img src="./static/images/legend.png" style="width:25px;margin-top: 4px;" alt="">
         </span>
         <mt-popup
                 v-model="info"
@@ -71,9 +71,9 @@
                 width:14px;
                 height:14px;
                 &:after{
-                     height: 6px;
-                     left: 3px
-                 }
+                    height: 6px;
+                    left: 3px
+                }
             }
         }
     }
@@ -88,18 +88,18 @@
         cursor: pointer;
         transition: all .2s;
         color: #666;
-    &:hover{
-         background-color: #efefef;
-         color: #20a0ff;
-     }
+        &:hover{
+            background-color: #efefef;
+            color: #20a0ff;
+        }
     }
 
     .legend-button{
-        height: 26px;
-        width: 26px;
-        line-height: 26px;
+        height: 32px;
+        width: 32px;
+        line-height: 32px;
         border-radius: 4px;
-        background-color: #fff;
+        background-color: rgba(255,255,255,.9);
         text-align: center;
         box-sizing: border-box;
         display: inline-block;
@@ -108,9 +108,9 @@
         position: absolute;
         top:0;
         right: 0;
-    &:active,&:hover{
-                  background-color: #efefef;
-              }
+        &:active,&:hover{
+            background-color: #efefef;
+        }
     }
 
     .el-switch--wide .el-switch__label.el-switch__label--left span{
@@ -123,11 +123,11 @@
     .control-list{
         height:38px;
         text-align: center;
-    >span{
-         font-size: 14px;
-         padding-top: 2px;
-         position: absolute;
-     }
+        >span{
+            font-size: 14px;
+            padding-top: 2px;
+            position: absolute;
+        }
 
     }
 
@@ -174,16 +174,16 @@
                 this.riverLegend.forEach(r=>r.children = []);
 
                 this.dam.list.forEach((d)=>{
-                         if(d.kind.indexOf('在建')>-1) {
-                                this.riverLegend[1].children.push(d);
-                           }else if(d.kind.indexOf('前期')>-1){
-                                this.riverLegend[2].children.push(d);
-                           }else if(d.kind.indexOf('规划')>-1){
-                                 this.riverLegend[3].children.push(d);
-                           }else{
-                                this.riverLegend[0].children.push(d);
-                           }
-                    })
+                    if(d.kind.indexOf('在建')>-1) {
+                        this.riverLegend[1].children.push(d);
+                    }else if(d.kind.indexOf('前期')>-1){
+                        this.riverLegend[2].children.push(d);
+                    }else if(d.kind.indexOf('规划')>-1){
+                        this.riverLegend[3].children.push(d);
+                    }else{
+                        this.riverLegend[0].children.push(d);
+                    }
+                })
                 return this.riverLegend;
             }
         },

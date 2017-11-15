@@ -26,12 +26,12 @@ Vue.use(Router);
 
 
 import map from './views/map.vue';
-import itree from './views/test.vue';
+import login from './views/login.vue';
 import {store} from './store';
 import app from './views/app.vue';
 const routes = [
-    { path: '/', component: map },
-    { path: '/test', component: itree },
+    { path: '/map', component: map },
+    { path: '/', component: login },
 ];
 
 const router = new Router({
@@ -59,5 +59,10 @@ new Vue({
         });
 
         $('.loading').hide();
+
+
+
     }
 }).$mount('#app')
+
+

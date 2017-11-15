@@ -3,9 +3,9 @@
   <slider   @change="onRoute" ></slider>
   <section>
    <div class="main">
-    <mt-header class="x-header" title="大坝信息系统" style="height: 46px;">
-     <mt-button slot="right" @click="onClick">
-      <img src="/static/images/integratedQuery.png" alt="" style="height: 25px;margin-top: 4px;">
+    <mt-header  class="x-header" title="全国大坝信息系统" style="height: 46px;">
+     <mt-button slot="right" v-show="login.show" @click="onClick">
+      <img src="./static/images/integratedQuery.png"  style="height: 25px;margin-top: 4px;" />
      </mt-button>
     </mt-header>
     <div style="position:absolute;top:46px;bottom: 0;width: 100%;">
@@ -36,6 +36,7 @@
     import slider from '/src/components/slider.vue';
 
     export default{
+        store:['login'],
         data(){
             return{
 
