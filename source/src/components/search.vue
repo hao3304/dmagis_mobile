@@ -8,12 +8,17 @@
 </template>
 <style lang='less'>
         .search-block{
-                position: absolute;width: 100%;top:10px;line-height: initial;z-index:900;
+                position: absolute;
+                top: -40px;
+                right: 50px;
+                left: 10px;
+                line-height: initial;
+                z-index: 900;
                 .input-block{
                         background-color: #fff;
                         border: 1px solid #ccc;
-                        height: 42px;
-                        line-height: 42px;
+                        height: 32px;
+                        line-height: 32px;
                         color: #888;
                         padding: 0 10px;
                         border-radius: 4px;

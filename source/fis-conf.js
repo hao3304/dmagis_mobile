@@ -89,7 +89,8 @@ fis.media('prod')
         packTo:'/static/pkg/bundle.js'
     })
     .match('::package',{
-        postpackager: [fis.plugin('compression'),  fis.plugin('loader')]
+        postpackager: [  fis.plugin('loader')]
+        // postpackager: [fis.plugin('compression'),  fis.plugin('loader')]
     })
     .match('**', {
     deploy: [

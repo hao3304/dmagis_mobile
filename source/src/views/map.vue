@@ -14,11 +14,11 @@
         </el-col>
         <el-col :span="24" class='main-wrap'  v-show='!container.left&&!container.right'  style="height: 100%;position:relative">
             <div id="map"  style="height: 100%"></div>
-            <clegend :type='legend' @change='filterDam' @area-change='onAreaChange'  style="position: absolute;z-index: 1000;right: 10px;top:70px;"></clegend>
+            <clegend :type='legend' @change='filterDam' @area-change='onAreaChange'  style="position: absolute;z-index: 1000;right: 10px;top:50px;"></clegend>
             <layers ref='layers' @change='onLayerChange' ></layers>
             <search @show="popup = true"></search>
 
-            <div v-show="rightSpan.list&&rightSpan.list.length>0" @click="onCloseRiverRegion" style="display:none;position: absolute; z-index: 900; left: 40px; top: 70px;">
+            <div v-show="rightSpan.list&&rightSpan.list.length>0" @click="onCloseRiverRegion" style="display:none;position: absolute; z-index: 900; left: 40px; top: 50px;">
                 <span class="legend-button"><img src="./static/images/clear.png" alt="" style="width: 25px; margin-top: 4px;">
                 </span>
             </div>
@@ -112,8 +112,13 @@
             </div>
         </el-col>
 
-        <div size='small' v-show='dialog' :modal="false"  class="db_modal"  :close-on-click-modal="false" >
-            <el-form  :model="form" label-width="85px" ref='table' :rules='rules'  class='custom-form' >
+        <mt-popup v-model="dialog"   position="right"  style="width:100%;height:100%">
+            <mt-header title="添加大坝">
+                <span slot="left">
+                    <mt-button @click='dialog = false'  icon="back">返回</mt-button>
+                </span>
+            </mt-header>
+            <el-form v-if="dialog" :model="form" label-width="85px" ref='table' :rules='rules'  class='custom-form' >
                 <el-row>
                     <el-col :span=24 >
                         <el-form-item label='所在省份'  prop='province'>
@@ -194,11 +199,11 @@
                 <!--<pos :lat='form.latitude' @draw-polygon='onGetPolygon' @change='onGetPos' :fill='form.bgColor' :border='form.borderColor'  :angle='form.angle' :lng='form.longitude' :length='form.length' ></pos>-->
                 <!--</el-row>-->
             </el-form>
-            <div style="text-align:center;margin-top:20px;" slot="footer" class="dialog-footer">
-                        <el-button type="primary" @click='onSaveDb'>确 定</el-button>
-                        <el-button @click.native="dialog = false">取 消</el-button>
-                    </div>
-        </div>
+            <div style="text-align:center;margin-top:20px;" class="dialog-footer">
+                <el-button type="primary" @click='onSaveDb'>确 定</el-button>
+                <el-button @click.native="dialog = false">取 消</el-button>
+            </div>
+        </mt-popup>
 
         <mt-popup
                 v-model="popup"
@@ -224,7 +229,7 @@
             </div>
 
         </mt-popup>
-        <el-dialog style="width:400px;" v-model='around_dialog'>
+        <el-dialog size="large" v-model='around_dialog'>
             <el-form :model='around_form' label-width='60px' :rules='rules2' ref='around-form' >
                 <el-row>
                     <el-col :span=24 >
@@ -279,7 +284,6 @@
         }
     }
     .custom-form{
-        overflow-y:auto;
         .el-form-item{
             margin-bottom: 4px !important;
         }
@@ -573,7 +577,7 @@
                     ]
                 });
                 this.map.on('click',(e)=>console.log(e))
-//                L.control.zoom({position:'bottomleft'}).addTo(this.map);
+                L.control.zoom({position:'bottomright'}).addTo(this.map);
 //                L.control.zoomhome({position:'topleft'}).addTo(this.map);
 
                 this.normal = L.tileLayer.chinaProvider('Google.Normal.Map',{maxZoom:18,minZoom:2}).addTo(this.map);
@@ -590,7 +594,7 @@
                 this.measureLayers = new L.featureGroup().addTo(this.map);
                 this.regionLayers = new L.featureGroup().addTo(this.map);
                 this.typhoonLayers = new L.featureGroup().addTo(this.map);
-
+                this.posLayers = new L.featureGroup().addTo(this.map);
                 this.tempMarkerLayers = new L.featureGroup().addTo(this.map);
 
                 /* this.regionLayers.on('click',(e)=>{
@@ -878,6 +882,7 @@
                         layer.setLatLngs(layer.options.latlngs);
                     })
 
+
                 }else{
                     if(this.preType == 'river') {
 
@@ -888,8 +893,6 @@
                     }
                     this.preType = type;
                     this[type].addTo(this.map);
-
-
 
                     if(type == 'normal') {
                         this.showArea = true;
@@ -914,12 +917,22 @@
                             layer.setLatLngs(ll);
                         })
 
+                        if(this.posMarker) {
+                            let ll =  coordtransform.wgs84togcj02(this.posMarker._latlng.lng,this.posMarker._latlng.lat);
+                            this.posMarker.setLatLng(ll.reverse());
+                        }
+
                     }else if(type == 'earth') {
                         this.markerLayers.eachLayer(layer=>{
                             if(layer.options.latitude&&layer.options.longitude){
                                 layer.setLatLng([parseFloat(layer.options.latitude),parseFloat(layer.options.longitude)]);
                             }
                         })
+
+                        if(this.posMarker) {
+                            let ll =  coordtransform.gcj02towgs84(this.posMarker._latlng.lng,this.posMarker._latlng.lat);
+                            this.posMarker.setLatLng(ll.reverse());
+                        }
 
 
                         this.regionLayers.eachLayer(layer=>{
@@ -1116,12 +1129,12 @@
                 this.form.latitude = e.latlng.lat;
 
                 this.tempMarkerLayers.clearLayers();
-                let marker = new L.marker([this.form.latitude,this.form.longitude],{draggable:true}).addTo(this.tempMarkerLayers);
-                marker.bindPopup("可以拖动我").openPopup();
-                marker.on("dragend",e=>{
-                    this.form.longitude = e.target._latlng.lng;
-                    this.form.latitude = e.target._latlng.lat;
-                })
+//                let marker = new L.marker([this.form.latitude,this.form.longitude],{draggable:true}).addTo(this.tempMarkerLayers);
+//                marker.bindPopup("可以拖动我").openPopup();
+//                marker.on("dragend",e=>{
+//                    this.form.longitude = e.target._latlng.lng;
+//                    this.form.latitude = e.target._latlng.lat;
+//                })
 
 
             },
@@ -1132,7 +1145,7 @@
                     layer.open({
                         title:'提示',
                         icon:8,
-                        content:`是否删除该大坝（${name}）?`,
+                        content:`是否删除该大坝?`,
                         btn:['确定','取消'],
                         yes:()=>{
                             layer.load(1);
@@ -1183,14 +1196,14 @@
                 })
             },
             onEditDb(d, e){
-                e.relatedTarget.enableEdit();
-                this.relatedTarget = e.relatedTarget;
+//                e.relatedTarget.enableEdit();
+//                this.relatedTarget = e.relatedTarget;
                 this.form = {...{
                     dbid:d.dbid,
                     province:d.province,
                     city:d.city,
-                    longitude:parseFloat(d.longitude),
-                    latitude:parseFloat(d.latitude),
+                    longitude:parseFloat(this.around_form.lng),
+                    latitude:parseFloat(this.around_form.lat),
                     bgColor:'',
                     borderColor:'',
                     riverid:d.riverid,
@@ -1201,10 +1214,10 @@
                 this.type = 'edit';
                 this.editDbName = d.name || d.dbmc;
 
-                e.relatedTarget.on("dragend",e=>{
-                    this.form.longitude = e.target._latlng.lng;
-                    this.form.latitude = e.target._latlng.lat;
-                })
+//                e.relatedTarget.on("dragend",e=>{
+//                    this.form.longitude = e.target._latlng.lng;
+//                    this.form.latitude = e.target._latlng.lat;
+//                })
 
                 if(this.$refs.table&&this.$refs.table.retFields){
                     this.$refs.table.retFields();
@@ -1214,15 +1227,39 @@
             onGetPos(position){
                 this.map.spin(true);
                 plus.geolocation.getCurrentPosition((rep)=>{
+
+                    let lat = rep.coords.latitude;
+                    let lng = rep.coords.longitude;
+                    if(this.layers.active != 'normal') {
+                        var ll = coordtransform.gcj02towgs84(lng,lat);
+                        lat = ll[1];
+                        lng = ll[0];
+                    }
+
+
                     this.posLayers.clearLayers();
-                    this.map.setView([rep.coords.latitude,rep.coords.longitude],16);
-                    let icon = new L.icon({iconUrl:'./static/images/pos.png',iconSize:[32,32]})
-                    new L.marker([rep.coords.latitude,rep.coords.longitude],{icon:icon}).addTo(this.posLayers);
-//                    L.circle([rep.coords.latitude,rep.coords.longitude], parseInt(rep.coords.accuracy),{weight:1}).addTo(this.posLayers);
+                    let icon = new L.icon({iconUrl:'./static/images/pos.png',shadowUrl:null,iconSize:[32,32]})
+                    let marker = this.posMarker = new L.marker([lat,lng],{icon:icon}).addTo(this.posLayers);
+                    if(this.login.id) {
+                        marker.bindTooltip('点击周边查询大坝',{permanent:true,direction:'top',interactive:true}).openTooltip();
+                        marker.on('click', (e)=> {
+//                            this.onAddDb(e);
+                            this.around_form = {
+                                ...{lat:e.latlng.lat,
+                                    lng:e.latlng.lng}
+                            };
+                            this.around_dialog = true;
+                        })
+                    }
+
+                   this.map.setView([lat,lng],16);
+
+
                     this.map.spin(false);
-                },()=>{
+                },(e)=>{
                     this.map.spin(false);
-                },{geocode:true,provider:'amap'})
+                    alert('code:'+e.code +'; message:' + e.message);
+                },{geocode:true,provider:'amap',timeout:6000})
             },
             onGetPolygon(area){
                 this.form.area = area;
@@ -1238,7 +1275,7 @@
                         this.aroundSearch = true;
                         let list = [];
                         let marker = L.marker([this.around_form.lat,this.around_form.lng]).addTo(this.measureLayers);
-                        marker.bindTooltip('中心点',{permanent:true,direction:'top'});
+//                        marker.bindTooltip('中心点',{permanent:true,direction:'top'});
 
                         let circle = L.circle([this.around_form.lat,this.around_form.lng], {radius: this.around_form.distance*1000,fillOpacity:.1,dashArray:[5,5]},).addTo(this.measureLayers);
 
@@ -1269,6 +1306,7 @@
                         this.container.right = true;
                         this.around_dialog = false;
 
+                        this.$nextTick(()=>this.map.fitBounds(this.markerLayers.getBounds()));
                     }
                 })
             },
@@ -1337,8 +1375,10 @@
                         this.dam.source = markers;
                         this.layers.active = 'river';
                         this.legend = 'river';
-
                         this.renderMarkers(markers,'river');
+                        this.rightSpan.list = markers;
+                        setTimeout(()=> this.$nextTick(()=>this.map.fitBounds(this.riverRegionLayers.getBounds())),500)
+
                     }else{
                         this.renderMarkers([]);
                     }
@@ -1347,6 +1387,7 @@
             onCloseRiverRegion() {
                 this.onCloseLeft();
                 this.rightSpan.list = [];
+                this.measureLayers.clearLayers();
                 if(this.regionCheck) {
                     this.map.spin(true);
                     this.map.removeLayer(this.wmsLayer);
@@ -1625,11 +1666,6 @@
                     this.$nextTick(()=>this.map.invalidateSize());
                 }
             },
-            'container.left'(a,b){
-//                if(b == 'river-region'){
-//                    this.onCloseRiverRegion();
-//                }
-            },
             search(v){
                 this.flyTo(v);
             },
@@ -1687,6 +1723,16 @@
                     if(this.relatedTarget) {
                         this.relatedTarget.disableEdit();
                     }
+                }
+            },
+            "container.left"(v){
+                if(!v) {
+                    if(this.riverRegionLayers.getLayers().length>0) {
+                        this.$nextTick(()=>this.map.fitBounds(this.riverRegionLayers.getBounds()))
+                    }else{
+                        this.$nextTick(()=>this.map.fitBounds(this.markerLayers.getBounds()))
+                    }
+
                 }
             }
         },

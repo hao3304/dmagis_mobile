@@ -15,7 +15,7 @@
         position: absolute;
         z-index: 999;
         right: 10px;
-        top: 117px;
+        top: 100px;
         img{
             width: 25px;
             margin-top: 4px;

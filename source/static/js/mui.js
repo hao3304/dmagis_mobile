@@ -134,7 +134,7 @@ var mui = (function(document, undefined) {
 			return object instanceof Array;
 		};
 	/**
-	 * mui isArrayLike 
+	 * mui isArrayLike
 	 * @param {Object} obj
 	 */
 	$.isArrayLike = function(obj) {
@@ -969,74 +969,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 		};
 	};
 }(window));
-/**
- * fastclick(only for radio,checkbox)
- */
-(function($, window, name) {
-	if (!$.os.android && !$.os.ios) { //目前仅识别android和ios
-		return;
-	}
-	if (window.FastClick) {
-		return;
-	}
 
-	var handle = function(event, target) {
-		if (target.tagName === 'LABEL') {
-			if (target.parentNode) {
-				target = target.parentNode.querySelector('input');
-			}
-		}
-		if (target && (target.type === 'radio' || target.type === 'checkbox')) {
-			if (!target.disabled) { //disabled
-				return target;
-			}
-		}
-		return false;
-	};
-
-	$.registerTarget({
-		name: name,
-		index: 40,
-		handle: handle,
-		target: false
-	});
-	var dispatchEvent = function(event) {
-		var targetElement = $.targets.click;
-		if (targetElement) {
-			var clickEvent, touch;
-			// On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect
-			if (document.activeElement && document.activeElement !== targetElement) {
-				document.activeElement.blur();
-			}
-			touch = event.detail.gesture.changedTouches[0];
-			// Synthesise a click event, with an extra attribute so it can be tracked
-			clickEvent = document.createEvent('MouseEvents');
-			clickEvent.initMouseEvent('click', true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
-			clickEvent.forwardedTouchEvent = true;
-			targetElement.dispatchEvent(clickEvent);
-			event.detail && event.detail.gesture.preventDefault();
-		}
-	};
-	window.addEventListener('tap', dispatchEvent);
-	window.addEventListener('doubletap', dispatchEvent);
-	//捕获
-	window.addEventListener('click', function(event) {
-		if ($.targets.click) {
-			if (!event.forwardedTouchEvent) { //stop click
-				if (event.stopImmediatePropagation) {
-					event.stopImmediatePropagation();
-				} else {
-					// Part of the hack for browsers that don't support Event#stopImmediatePropagation
-					event.propagationStopped = true;
-				}
-				event.stopPropagation();
-				event.preventDefault();
-				return false;
-			}
-		}
-	}, true);
-
-})(mui, window, 'click');
 (function($, document) {
 	$(function() {
 		if (!$.os.ios) {
@@ -1953,7 +1886,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 		return $.addAction('inits', init);
 	};
 	/**
-	 * 处理html5版本subpages 
+	 * 处理html5版本subpages
 	 */
 	$.addInit({
 		name: 'iframe',
@@ -2329,7 +2262,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 					webview = plus.webview.getWebviewById(id);
 				}
 
-				//之前没有，那就新创建	
+				//之前没有，那就新创建
 				if (!webview) {
 					webview = plus.webview.create(options.url, id, $.windowOptions(options.styles), $.extend({
 						preload: true
@@ -2371,7 +2304,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 				var webviewCache = $.webviews[first];
 				if (webviewCache && webviewCache.webview) {
 					//需要将自己打开的所有页面，全部close；
-					//关闭该预加载webview	
+					//关闭该预加载webview
 					$.closeAll(webviewCache.webview);
 				}
 				//删除缓存
@@ -3156,7 +3089,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 			left : box.left + window.pageXOffset - element.clientLeft
 		};
 	};
-})(mui, window); 
+})(mui, window);
 /**
  * mui animation
  */
@@ -4509,7 +4442,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 			} else if (options.up && options.up.auto) { //如果设置了auto，则自动上拉一次
 				pullRefreshApi.pullupLoading();
 			}
-			//暂不提供这种调用方式吧			
+			//暂不提供这种调用方式吧
 			//			if (typeof options === 'string') {
 			//				var methodValue = pullRefreshApi[options].apply(pullRefreshApi, $.slice.call(arguments, 1));
 			//				if (methodValue !== undefined) {
@@ -6151,7 +6084,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 			if (target.parentNode && target.parentNode.classList && target.parentNode.classList.contains(CLASS_SEGMENTED_CONTROL_VERTICAL)) {
 				//vertical 如果preventDefault会导致无法滚动
 			} else {
-				event.preventDefault(); //stop hash change				
+				event.preventDefault(); //stop hash change
 			}
 			//			if (target.hash) {
 			return target;
@@ -6551,7 +6484,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 
 })(mui, window);
 /**
- * Popup(alert,confirm,prompt)  
+ * Popup(alert,confirm,prompt)
  * @param {Object} $
  * @param {Object} window
  * @param {Object} document
@@ -6783,7 +6716,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 		}
 	};
 	/**
-	 * 创建并显示进度条 
+	 * 创建并显示进度条
 	 * @param {Object} container  可选，默认body，支持selector,DOM Node,mui wrapper
 	 * @param {Object} progress 可选，undefined表示循环，数字表示具体进度
 	 * @param {Object} color 可选，指定颜色样式(目前暂未提供实际样式，可暂时不暴露此参数)
@@ -6826,7 +6759,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 		return progressbar;
 	};
 	/**
-	 * 关闭进度条 
+	 * 关闭进度条
 	 * @param {Object} container 可选，默认body，支持selector,DOM Node,mui wrapper
 	 */
 	var hideProgressbar = function(container) {
@@ -6847,7 +6780,7 @@ Function.prototype.bind = Function.prototype.bind || function(to) {
 		return;
 	};
 	/**
-	 * 设置指定进度条进度 
+	 * 设置指定进度条进度
 	 * @param {Object} container  可选，默认body，支持selector,DOM Node,mui wrapper
 	 * @param {Object} progress 可选，默认0 取值范围[0-100]
 	 * @param {Object} speed 进度条动画时间

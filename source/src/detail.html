@@ -72,7 +72,7 @@
                <table style="margin-top:5px;" class="dam-info-table" v-for="p in property" v-show="radio == p.groupName">
                    <tr v-for="g in p.groupItems">
                        <td style="width: 140px;">{{g.itemName}}</td>
-                       <td>{{g.itemValue}}</td>
+                       <td v-html="getValue(g)"></td>
                    </tr>
                </table>
            </div>

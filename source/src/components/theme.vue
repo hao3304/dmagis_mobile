@@ -46,9 +46,9 @@
                     </div>
                 </el-table-column>
             </el-table>
-            <div style="padding:5px;">
-                <el-button icon='plus' @click='onAddTheme' type='primary' size='small' style='width:100%;'>新增</el-button>
-            </div>
+            <!--<div style="padding:5px;">-->
+                <!--<el-button icon='plus' @click='onAddTheme' type='primary' size='small' style='width:100%;'>新增</el-button>-->
+            <!--</div>-->
         </div>
 
         <el-dialog :title='title' :visible.sync='faceDialog' :before-close="handleClose">

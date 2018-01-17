@@ -205,7 +205,10 @@
                 });
                 this.dam.source = this.dam.list = this.dam.all.filter(d=>{
                     return dams.indexOf(d.dbid) > -1;
-                })
+                });
+
+                this.rightSpan.list = this.dam.source;
+                this.rightSpan.name = '降雨分析';
             },
             trans(data) {
                 data = JSON.parse(data);

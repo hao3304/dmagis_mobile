@@ -3,8 +3,8 @@
   <slider   @change="onRoute" ></slider>
   <section>
    <div class="main">
-    <mt-header  class="x-header" title="全国大坝信息系统" style="height: 46px;">
-     <mt-button slot="right" v-show="login.show" @click="onClick">
+    <mt-header  class="x-header" title="DamGIS" style="height: 46px;">
+     <mt-button slot="right" @click="onClick">
       <img src="./static/images/integratedQuery.png"  style="height: 25px;margin-top: 4px;" />
      </mt-button>
     </mt-header>

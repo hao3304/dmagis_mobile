@@ -11,6 +11,7 @@
     <link rel="shortcut icon" href="/static/images/favicon.png" />
     <link rel="bookmark" href="/static/images/favicon.png" type="image/x-icon"　/>
     <link rel="stylesheet" href="/static/css/iconfont.css">
+
     <style>
 
         .loading {
@@ -118,9 +119,8 @@
             plus.navigator.setStatusBarStyle('UIStatusBarStyleBlackOpaque');
         }
         plus.screen.lockOrientation("portrait-primary");
-    },false);
+        require('./app.js');
 
-</script>
-<script>
- require('./app.js');
+    },false);
+  //  require('./app.js');
 </script>

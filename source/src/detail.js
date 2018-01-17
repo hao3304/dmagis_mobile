@@ -34,7 +34,22 @@ new Vue({
             let r = window.location.search.substr(1).match(reg);
             if (r != null) return unescape(r[2]); return null;
         },
+        getValue(obj){
+            if(obj.itemName&&obj.itemValue) {
+                if(obj.itemName.indexOf("电话")>-1||obj.itemName.indexOf("手机")>-1) {
+                    const nums = obj.itemValue.split(',');
+                    return nums.map(n=>{
+                        return `<a href="tel:${n}">${n}</a>`
+                    }).join(',');
 
+                }else{
+                    return obj.itemValue;
+                }
+            }else{
+                return '';
+            }
+
+        }
     },
     watch:{
         tab(t){

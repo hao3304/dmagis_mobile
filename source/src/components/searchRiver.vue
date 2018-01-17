@@ -66,7 +66,7 @@
     import {  getRivers,querySubRiverIDs,addSection,queryHaveDamRiverList } from '../modules/service.js';
     import xSection from './section.vue';
     import 'babel-polyfill';
-
+    import { Toast } from 'mint-ui';
     export default{
         store:['container','rightSpan','dam','_map'],
         data(){
@@ -162,17 +162,21 @@
             },
             onAddCustom() {
                 if(this.form.damIds.length < 2) {
-                    return  this.$message({
-                        showClose: true,
-                        message: '请至少选择选择大坝',
-                        type: 'warning'
-                    });
+
+                    return Toast({
+                        message:'请至少选择选择大坝',
+                        position:'bottom',
+                        duration:3000
+                    })
+
+
                 }
                 this.customDialog = false;
                 addSection({
                     name:this.form.name,
                     damIds: this.form.damIds.join(',')
                 }).then(rep=>{
+
                     this.$message({
                         showClose: true,
                         message: '提交成功',
@@ -233,10 +237,11 @@
                         }
                     });
                     if(type == 'section' && pm.length <=2) {
-                        return  this.$message({
-                            message: "相关大坝数量少于2个，无法绘制剖面，请选择其他流域查看！",
-                            type: 'warning'
-                        });
+                        return Toast({
+                            message:'相关大坝数量少于2个，无法绘制剖面，请选择其他流域查看！',
+                            position:'bottom',
+                            duration:3000
+                        })
                     }
 
                     if(list.length>0){
@@ -245,15 +250,19 @@
                             this.ids = pm.map(l=>l.dbid).join(',');
                             this.title = node.name;
                             // this.dialog = true;
-                            layer.open({
-                                type:2,
-                                title:this.title,
-                                shadeClose: true,
-                                shade: false,
-                                maxmin: true, //开启最大化最小化按钮
-                                area: ['893px', '500px'],
-                                content: `./profile.html?sort=1&ids=${this.ids} `
-                            })
+//                            layer.open({
+//                                type:2,
+//                                title:this.title,
+//                                shadeClose: true,
+//                                shade: false,
+//                                maxmin: true, //开启最大化最小化按钮
+//                                area: ['100%', '100%'],
+//                                content: `./profile.html?sort=1&ids=${this.ids} `
+//                            })
+
+                            var webview = mui.openWindow({
+                                url:`./profile.html?sort=1&ids=${this.ids} `
+                            });
 
                         }else{
                             this.rightSpan.list = list;
@@ -265,8 +274,16 @@
                         }
 
 
+                    }else{
+                        return Toast({
+                            message:'该流域下没有大坝数据',
+                            position:'bottom',
+                            duration:3000
+                        })
                     }
                 }
+
+
             },
             onShow(){
                 this.ids = this.form.damIds.join(',');
@@ -350,11 +367,6 @@
             xSection
         },
         mounted(){
-            /* $('.search-river').slimScroll({ height: document.documentElement.clientHeight - 37 });
-              $(window).resize(function(){
-                 $('.search-river').slimScroll({ height: document.documentElement.clientHeight - 37 });
-              }); */
-
             $('.search-river').height(document.documentElement.clientHeight - 85);
             this.render();
         }

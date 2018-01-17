@@ -44,9 +44,13 @@ export const updateSection = (params = {})=>co($.get(`${prefix}/GIS/basin/update
 export const deleteSection = (params = {})=>co($.get(`${prefix}/GIS/basin/deleteSection.jsp`,params));
 export const getTyphoonInfoByTfId = (params = {})=>co($.get(`${prefix}/GIS/emergencySupport/getTyphoonInfoByTfId.jsp`,params));
 
+export const getVersion = ()=>co($.getJSON(`${prefix}/GIS/getVersion.jsp?softID=23`),{});
+export const loginWithIMEI = (IMEI)=>co($.getJSON(`${prefix}/GIS/loginWithIMEI.jsp?IMEI=` + IMEI));
+
+
 export const getPlaceNames = (params={})=>{
     if(params.regionType){
-        return co($.getJSON(`/DamGIS/placename/placename!findPlaceNames.action`,{regionType:'city',...params}));
+        return co($.getJSON(prefix2 + `/DamGIS/placename/placename!findPlaceNames.action`,{regionType:'city',...params}));
     }else{
         return co($.getJSON('./static/json/region.json'));
     }
