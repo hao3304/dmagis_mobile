@@ -20,8 +20,8 @@
     </style>
 </head>
 <body bgcolor="#f3f3f3">
-  <div id='container' style="text-align: center" >
-	</div>
+<div id='container' style="text-align: center" >
+</div>
 <div class="action-back" onclick="onBack()">
     返回
 </div>
@@ -49,7 +49,6 @@
         mui.back();
     }
 
-
     function GetQueryString(name)
     {
         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
@@ -72,6 +71,10 @@
         }
     }
 
+    $(document).ready(function () {
+        createProfileChart(_Dams);
+    });
+
 
     window.onresize = function(){
         createProfileChart(_Dams);
@@ -80,7 +83,7 @@
     function createProfileChart(dams) {
         var bodyWidth = $(window).width();
         var bodyHeight = $(window).height();
-        
+
         var sceneWidth = 800;
         var sceneHeight = bodyHeight - 120;
         $("#container").css("height",(sceneHeight + 100) + "px");
@@ -94,34 +97,34 @@
 
         dams = preDams(dams);
         if(sort == "1"){
-            dams = _.filter(dams, function(dam){ 
-                return dam.normalWaterLevel > 0 ; 
+            dams = _.filter(dams, function(dam){
+                return dam.normalWaterLevel > 0 ;
             });
             dams = _.sortBy(dams, function(dam) {
-              return -parseFloat(dam.normalWaterLevel);
+                return -parseFloat(dam.normalWaterLevel);
             });
             dams = calLen(dams);
             dams = fixTopLevel(dams);
-            dams = fixBaseLevel(dams);        
+            dams = fixBaseLevel(dams);
             dams = fixDamHeight(dams);
         }else{
             dams = calLen(dams);
             dams = fixTopLevel(dams);
             dams = fixBaseLevel(dams);
-            //dams = fixDamNormalWater(dams);      //水位不需要计算   
+            //dams = fixDamNormalWater(dams);      //水位不需要计算
             dams = fixDamHeight(dams);
 
         }
         //计算平均坝高
         let avgHeight = calAvgHeight(dams);
-        
+
         var x0 = autoDistance(dams);  //第一个大坝的距离
 
         var height0 = dams[0].normalWaterLevel;
-         //标记x0是否超过最大值
+        //标记x0是否超过最大值
         var max = _.max(dams, function(dam){ return dam.odistance;});
         var offset = 0.0;
-        
+
         if (max.odistance < x0)
         {
             offset = max.odistance - x0;
@@ -137,7 +140,7 @@
         console.log("x0:" + x0);
         //alert(x0);
         var maxDistance = dams[dams.length - 1].distance * 1.1;
-        //maxDistance += x0; 
+        //maxDistance += x0;
         var xminorTickInterval = 20;
         if(maxDistance < 300){
             xminorTickInterval = 20;
@@ -154,9 +157,10 @@
         for(var i = 0;i < (maxDistance / xminorTickInterval + 1);i++){
             xtickPositions.push(i * xminorTickInterval);
         }
-        
+
         //计算最大高程差
         var maxElev = _.max(dams, function(dam){ return dam.topLevel;});
+        var minElev = _.min(dams, function(dam){ return dam.baseLevel;});
         var maxYAxis = 0;
         maxElev = maxElev.topLevel * 1.1;
         var yAxisScale = 10 ;
@@ -189,14 +193,17 @@
         }
         var ytickPositions = [];
         for(var i = 0;i < (maxElev / yAxisScale + 1);i++){
-            ytickPositions.push(i * yAxisScale);
+            if((i + 2) * yAxisScale > minElev.baseLevel){
+                ytickPositions.push(i * yAxisScale);
+            }
+
         }
         var tooltip = null;
         var chart = new Highcharts.Chart({
             xAxis:{
                 title:{
-                   text:'直线距离(KM)',
-                   align:'high'
+                    text:'直线距离(KM)',
+                    align:'high'
                 },
                 lineWidth:1,
                 minorGridLineWidth: 0,
@@ -207,8 +214,8 @@
             },
             yAxis:{
                 title:{
-                   text:'高程',
-                   align:'high'
+                    text:'高程',
+                    align:'high'
                 },
                 gridLineWidth:0,
                 lineWidth:1,
@@ -236,7 +243,7 @@
                     load: function () {
                         // Draw the flow chart
                         var ren = this.renderer,
-                        colors = Highcharts.getOptions().colors;
+                            colors = Highcharts.getOptions().colors;
                         var max = this.yAxis[0].max;
                         var left = this.xAxis[0].left;
                         var top = this.xAxis[0].top;
@@ -251,7 +258,7 @@
                         for(var m = 0;m < dams.length;m++){
                             var dam = dams[m];
                             var damInfo = dam.dam;
-                            
+
                             var tip = "";
                             var fillcol = "gray";
                             var bordercol = "blue";
@@ -271,8 +278,8 @@
                             p2.x += deltaWidth;
                             p3.x += deltaWidth;
                             if(pTopLevel == 0 && pNormalWaterLevel == 0){
-                                //绘制大坝  
-                                //avgHeight 
+                                //绘制大坝
+                                //avgHeight
                                 var damPath = [];
                                 damPath.push('M');
                                 damPath.push(p1.x, p2.y + avgHeight);
@@ -349,17 +356,17 @@
                             polygonPath.push('L');
                             polygonPath.push(p2.x - damWidth, p2.y);
                             if(m != 0){
-              
+
                                 var ndam = dams[m - 1];
                                 var ppDistance = coordTransferX(ndam.distance,xtransA,left);
                                 var ppBaseLevel = coordTransferY(ndam.baseLevel,ytransA,max,top);
                                 var p4 = {x:ppDistance,y:ppBaseLevel};
                                 p4.x += deltaWidth - damWidth;
                                 x = p4.x;
-                                
+
                                 if (p3.y <= p4.y)
                                 {
-                                    
+
                                     polygonPath.push(p4.x, p4.y);
                                     polygonPath.push(p4.x , p3.y);
 
@@ -377,12 +384,12 @@
                             if (damInfo.constructState.indexOf("已建") >= 0 || damInfo.constructState.indexOf("已蓄水") >= 0)
                             {
                                 polygonStyle = {
-                                     fill: {
+                                    fill: {
                                         linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
                                         stops: [
-                                                    [0, Highcharts.Color("#91e3e7").setOpacity(1).get('rgb')],
-                                                    [1, Highcharts.Color("#ffffff").setOpacity(1).get('rgb')]
-                                                ]
+                                            [0, Highcharts.Color("#91e3e7").setOpacity(1).get('rgb')],
+                                            [1, Highcharts.Color("#ffffff").setOpacity(1).get('rgb')]
+                                        ]
                                     }
                                 }
 
@@ -397,7 +404,7 @@
                             //ToolTipService.SetToolTip(polygon, tip);
 
                             var damPolygon = ren.path(polygonPath)
-                            .attr(polygonStyle).add();
+                                .attr(polygonStyle).add();
                             damPolygon.element.dam = damInfo;
                             damPolygon.element.onmouseover = function(e){
                                 var s = "";
@@ -422,7 +429,7 @@
                                 s += '<br><div><span style="width:50px">库容: </span><span style="font-weight:bold">' + this.dam.storage + '(亿m³)</span></div>';
                                 s += '<br><div><span style="width:50px">蓄水时间: </span><span style="font-weight:bold">' + this.dam.productionTime + '</span></div>';
                                 s += '<br><div><span style="width:50px">行业类别: </span><span style="font-weight:bold">' + this.dam.domination + '</span></div>';
-                        
+
                                 tooltip = ren.label(s, e.x,e.y, 'callout', null, null, false, null, 'tooltip')
                                     .attr({
                                         padding: 10,
@@ -434,10 +441,10 @@
                                     .add();
 
                                 tooltip.shadow(true);
-                                
+
                             }
                             damPolygon.element.onmouseout = function(e){
-                                tooltip.element.parentNode.removeChild(tooltip.element);         
+                                tooltip.element.parentNode.removeChild(tooltip.element);
                             }
                             //绘制水位线
                             var waterLevelLinePath = [];
@@ -461,7 +468,7 @@
                                         dashstyle: '5,2'
                                     };
                                 }
-                                
+
                             }
                             else
                             {
@@ -471,7 +478,7 @@
                                 };
                             }
                             ren.path(waterLevelLinePath).attr(waterLevelLineStyle).add();
-                            //绘制水位值 
+                            //绘制水位值
                             if(p3.x - x > 50){
                                 var txtWidth = 20;
                                 var normalWaterLevel = dam.normalWaterLevel;
@@ -481,10 +488,10 @@
                                     levelX = coordTransferX(x0 / 2,xtransA,left) - txtWidth / 2;
                                 }
                                 ren.label(normalWaterLevel, levelX + 4, p3.y - 15)
-                                .css({
-                                    fontSize: '11px'
-                                }).add();
-                                //绘制大坝水位标记 
+                                    .css({
+                                        fontSize: '11px'
+                                    }).add();
+                                //绘制大坝水位标记
                                 ren.image("/static/images/sjx.png",levelX - 4, p3.y - 11 , 11, 11).add();
 
                             }
@@ -492,17 +499,17 @@
                             //绘制大坝名称
                             var damName=treatDamName(damInfo.dbmc);
                             ren.label(damName, p2.x - 6, p2.y)
-                            .css({
-                                fontSize: '12px',
-                                width: '12px',
-                                wordWrap: 'breakWord',
-                                fontFamily: '微软雅黑',
-                                writingMode: 'tb-rl',
-                                display: 'block'
-                            }).add();
+                                .css({
+                                    fontSize: '12px',
+                                    width: '12px',
+                                    wordWrap: 'breakWord',
+                                    fontFamily: '微软雅黑',
+                                    writingMode: 'tb-rl',
+                                    display: 'block'
+                                }).add();
 
                             //绘制大坝
-         
+
                             var damPath = [];
                             damPath.push('M');
                             damPath.push(p1.x, p1.y);
@@ -579,7 +586,7 @@
                             }else{
                                 polylinePath.push(p4.x , p4.y);
                             }
-                            
+
                             var pollineStyle = {'stroke-width':1};
                             pollineStyle["stroke"] = "black";
                             ren.path(polylinePath).attr(pollineStyle).add();
@@ -612,12 +619,12 @@
 
     //预处理
     function  preDams(dams) {
-        dams = _.filter(dams, function(dam){ 
+        dams = _.filter(dams, function(dam){
             var can = false;
             if(dam["longitude"] != undefined && dam["longitude"] != "" && dam["latitude"] != undefined && dam["latitude"] != ""){
                 can = true;
             }
-            return can ; 
+            return can ;
         });
         var nDams = [];
         for(var i = 0;i < dams.length;i++){
@@ -653,8 +660,8 @@
 
     //计算平均坝高
     function calAvgHeight(dams){
-        var list = _.filter(dams, function(dam){ 
-            return dam.height > 0 ; 
+        var list = _.filter(dams, function(dam){
+            return dam.height > 0 ;
         });
         let sumDam = 0;
         for(let i = 0;i < list.length;i++){
@@ -687,21 +694,21 @@
     /// <param name="infos"></param>
     function fixBaseLevel(infos)
     {
-        
+
         for(let i = 0;i < infos.length;i++){
             if(infos[i].topLevel > 0 && infos[i].height > 0 && infos[i].baseLevel <= 0){
                 infos[i].baseLevel = infos[i].topLevel - infos[i].height;
             }
         }
-        var list = _.filter(infos, function(dam){ 
-            return dam.baseLevel <= 0 ; 
+        var list = _.filter(infos, function(dam){
+            return dam.baseLevel <= 0 ;
         });
         for (var i = 0; i < list.length; i++)
         {
             var info = list[i];
             var startIndex = _.indexOf(infos,info);
             //上游坝
-            
+
             var up = _.findLastIndex(infos,function(p){
                 return p.baseLevel > 0 && (_.indexOf(infos,p) < startIndex)
             });
@@ -731,7 +738,7 @@
                 infos = _.without(infos,info);
             }
         }
-        return infos;   
+        return infos;
     }
 
     /// <summary>
@@ -740,8 +747,8 @@
     /// <param name="infos"></param>
     function fixDamNormalWater(infos)
     {
-        var list = _.filter(infos, function(dam){ 
-            return dam.normalWaterLevel <= 0 ; 
+        var list = _.filter(infos, function(dam){
+            return dam.normalWaterLevel <= 0 ;
         });
         for (var i = 0; i < list.length; i++)
         {
@@ -762,7 +769,7 @@
                     var updam = infos[up];
                     var downdam = infos[down];
                     var water = (updam.normalWaterLevel + downdam.normalWaterLevel - updam.baseLevel -
-                                 downdam.baseLevel)/2.0;
+                        downdam.baseLevel)/2.0;
                     if (water > 100)
                         water = 100;
                     info.normalWaterLevel = Math.round(water + info.baseLevel,0);
@@ -786,13 +793,13 @@
     /// <param name="infos"></param>
     function fixTopLevel(infos)
     {
-        var haveDams = _.filter(infos, function(dam){ 
-            return dam.topLevel <= 0 ; 
+        var haveDams = _.filter(infos, function(dam){
+            return dam.topLevel <= 0 ;
         });
         if (haveDams.length > 0)
-        {          
-            var plist = _.filter(infos, function(dam){ 
-                return dam.topLevel > 0 && dam.normalWaterLevel > 0; 
+        {
+            var plist = _.filter(infos, function(dam){
+                return dam.topLevel > 0 && dam.normalWaterLevel > 0;
             });
             //平均坝顶高程、水位高差
             var totalDeep = 0;
@@ -808,7 +815,7 @@
                 if(dam.topLevel <= 0 && dam.normalWaterLevel > 0){
                     dam.topLevel = Math.round(dam.normalWaterLevel + avg,0);
                 }
-                
+
             }
         }
         return infos;
@@ -820,8 +827,8 @@
     /// <param name="infos"></param>
     function fixDamHeight(infos)
     {
-        var list = _.filter(infos, function(dam){ 
-            return dam.height <= 0 ; 
+        var list = _.filter(infos, function(dam){
+            return dam.height <= 0 ;
         });
         if (list.length > 0)
         {
@@ -831,7 +838,7 @@
                 if(info.height <= 0 && info.topLevel > 0 && info.baseLevel > 0){
                     info.height = Math.round(info.topLevel - info.baseLevel,0);
                 }
-                
+
             }
         }
         return infos;
@@ -931,5 +938,4 @@
     {
         return d * Math.PI / 180.0;
     }
-
 </script>

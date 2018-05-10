@@ -10,12 +10,14 @@
         <!--<x-input v-model='username' required title="用户名" placeholder="请输入用户名" novalidate  placeholder-align="right"></x-input>-->
         <!--<x-input v-model='password' type='password' required title="密&nbsp;&nbsp;&nbsp;&nbsp;码" placeholder="请输入密码" novalidate placeholder-align="right"></x-input>-->
         <!--</group>-->
-
-        <!--<mt-field label="用户名" placeholder="请输入用户名" v-model="username"></mt-field>-->
-        <!--<mt-field label="密码" placeholder="请输入密码" type="password" v-model="password"></mt-field>-->
+      <div v-show="ios">
+          <mt-field label="用户名" placeholder="请输入用户名" v-model="username"></mt-field>
+          <mt-field label="密码" placeholder="请输入密码" type="password" v-model="password"></mt-field>
+      </div>
 
         <div style="padding:20px 10px;text-align: center">
-            <mt-button size="large" @click='onLogin' type="primary">IMEI登录</mt-button>
+            <mt-button v-show="!ios" size="large" @click='onLoginImei' type="primary">IMEI登录</mt-button>
+            <mt-button v-show="ios" size="large" @click='onLogin' type="primary">登录</mt-button>
             <!--<mt-button style="margin-top: 20px;" size="large" @click='onView' >游客</mt-button>-->
         </div>
     </div>
@@ -54,13 +56,15 @@
                 username:'',
                 password:'',
                 loading:false,
-                loading2:false
+                loading2:false,
+                ios:mui.os.ios
             }
         },
 
         methods:{
-            onLogin(){
+            onLoginImei(){
                 plus.nativeUI.showWaiting("登录中...");
+
                 loginWithIMEI(plus.device.imei).then(([rep])=>{
                     plus.nativeUI.closeWaiting();
                     if(rep.result == 'false') {
@@ -76,6 +80,25 @@
 //                this.$ls.set('username',"jack");
 
             },
+            onLogin() {
+                if(this.username && this.password){
+                    plus.nativeUI.showWaiting("登录中...");
+                    doLogin({username:this.username,password:this.password}).then((rep)=>{
+                        plus.nativeUI.closeWaiting();
+                        if(rep.length>0&&rep[0].realname){
+                            this.login.name = rep[0].realname;
+                            this.login.id = rep[0].userid;
+                            this.$ls.set('username',this.username);
+
+                            this.$ls.set('password',this.password);
+                            this.$router.push('/map');
+                        }else{
+                            let hint = rep[0].hint;
+                            alert(hint);
+                        }
+                    })
+                }
+            },
             onView(){
                 this.login.show = true;
                 this.$router.push('/map');
@@ -85,8 +108,13 @@
 
         },
         mounted(){
-            this.username = this.$ls.get('username','');
+            this.username = this.$ls.get('username')||"";
             this.password = this.$ls.get('password','');
+            this.username  = this.username == "陈文华"?'':this.username;
+            if(!this.ios) {
+                this.onLoginImei();
+            }
+
         }
     }
 </script>

@@ -14,11 +14,11 @@
         </el-col>
         <el-col :span="24" class='main-wrap'  v-show='!container.left&&!container.right'  style="height: 100%;position:relative">
             <div id="map"  style="height: 100%"></div>
-            <clegend :type='legend' @change='filterDam' @area-change='onAreaChange'  style="position: absolute;z-index: 1000;right: 10px;top:50px;"></clegend>
+            <clegend ref="legend" :type='legend' @change='filterDam' @area-change='onAreaChange'  style="position: absolute;z-index: 1000;right: 10px;top:50px;"></clegend>
             <layers ref='layers' @change='onLayerChange' ></layers>
             <search @show="popup = true"></search>
 
-            <div v-show="rightSpan.list&&rightSpan.list.length>0" @click="onCloseRiverRegion" style="display:none;position: absolute; z-index: 900; left: 40px; top: 50px;">
+            <div @click="onCloseRiverRegion" style="position: absolute; z-index: 900; left: 40px; top: 50px;">
                 <span class="legend-button"><img src="./static/images/clear.png" alt="" style="width: 25px; margin-top: 4px;">
                 </span>
             </div>
@@ -86,19 +86,19 @@
                         prop='constructState'
                 >
                 </el-table-column>
-                <el-table-column
-                        fixed="right"
-                        label="操作"
-                        width="80"
-                        v-if='login.id'
-                        inline-template
-                >
-                    <span>
-                        <a href='javascript:;' @click='onEditDb(row)'><i class='el-icon-edit'></i></a>
-                        &nbsp;
-                        <a href='javascript:;' @click='onDelDb(row)'><i class='el-icon-delete2'></i></a>
-                    </span>
-                </el-table-column>
+                <!--<el-table-column-->
+                        <!--fixed="right"-->
+                        <!--label="操作"-->
+                        <!--width="80"-->
+                        <!--v-if='login.id'-->
+                        <!--inline-template-->
+                <!--&gt;-->
+                    <!--<span>-->
+                        <!--<a href='javascript:;' @click='onEditDb(row)'><i class='el-icon-edit'></i></a>-->
+                        <!--&nbsp;-->
+                        <!--<a href='javascript:;' @click='onDelDb(row)'><i class='el-icon-delete2'></i></a>-->
+                    <!--</span>-->
+                <!--</el-table-column>-->
             </el-table>
             <div style="text-align:center;">
                 <el-pagination
@@ -210,14 +210,12 @@
                 position="bottom"
                 style="width:100%;height:100%"
         >
-
             <div class="mint-searchbar">
                 <div class="mint-searchbar-inner">
                     <i class="mintui mintui-search"></i>
-                    <input type="search" v-model="search_value" placeholder="搜索" class="mint-searchbar-core"></div>
+                    <input type="search" v-model="search_value" placeholder="请输入大坝名称" class="mint-searchbar-core"></div>
                 <a class="mint-searchbar-cancel" @click="onCancelSearch" style="">取消</a>
             </div>
-
             <div style="position: absolute;top:52px;bottom: 0;left: 0;right:0;overflow-y: scroll;">
                 <a @click="onSearchClick(n)"  v-for="n in search_list" class="mint-cell"><!---->
                     <div class="mint-cell-left"></div>
@@ -227,7 +225,6 @@
                     <div class="mint-cell-right"></div> <!---->
                 </a>
             </div>
-
         </mt-popup>
         <el-dialog size="large" v-model='around_dialog'>
             <el-form :model='around_form' label-width='60px' :rules='rules2' ref='around-form' >
@@ -249,7 +246,6 @@
                             </el-input>
                         </el-form-item>
                     </el-col>
-
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -257,6 +253,34 @@
                         <el-button @click.native="around_dialog = false">取 消</el-button>
                     </span>
         </el-dialog>
+
+        <mt-popup
+                v-model="searchPopup"
+                position="bottom"
+                style="width:100%;height:100%"
+        >
+            <div class="mint-searchbar">
+                <div class="mint-searchbar-inner">
+                    <i class="mintui mintui-search"></i>
+                    <input type="search" v-model="search_value" placeholder="请输入大坝名称,点击大坝更新坐标" class="mint-searchbar-core"></div>
+                <a class="mint-searchbar-cancel" @click="onCancelSearch" style="">取消</a>
+            </div>
+            <div style="position: absolute;top:52px;bottom: 0;left: 0;right:0;overflow-y: scroll;">
+                <a @click="onUpdateClick(n)"  v-for="n in search_list" class="mint-cell"><!---->
+                    <div class="mint-cell-left"></div>
+                    <div class="mint-cell-wrapper"><div class="mint-cell-title"><!---->
+                        <span class="mint-cell-text">{{n.dbmc}}</span> <!----></div>
+                        <div class="mint-cell-value"><span>{{n.kind}}</span></div></div>
+                    <div class="mint-cell-right"></div> <!---->
+                </a>
+            </div>
+        </mt-popup>
+
+        <mt-actionsheet
+                :actions="actions"
+                v-model="sheetVisible">
+        </mt-actionsheet>
+
     </el-row>
 </template>
 <style lang='less'>
@@ -430,6 +454,7 @@
     export default{
         store:['dam','layer','rightSpan','search','container','login','addList','_map','layers','showReset'],
         data() {
+            var self = this;
             return {
                 height: document.documentElement.clientHeight - 40,
                 zoom:4,
@@ -479,7 +504,14 @@
                 },
                 currentPage:1,
                 legend:'normal',
-                search_value:''
+                search_value:'',
+                actions:[{name:"查询定位",method:function () {
+                    self.onShowSearchAround();
+                }},{name:'大坝定位',method:function () {
+                    self.onShowSearchList();
+                }}],
+                sheetVisible:false,
+                searchPopup:false
             }
         },
         computed:{
@@ -676,7 +708,9 @@
               this.container.right = false;
                 let bounds = this.markerLayers.getBounds();
                 if(bounds._northEast){
-                    this.map.fitBounds(bounds);
+                    this.$nextTick(()=>{
+                       // this.map.fitBounds(bounds);
+                    })
                 }
             },
             renderMarkers(rep,type){
@@ -853,7 +887,6 @@
                 this.map.removeLayer(this.earth);
                 this.map.removeLayer(this.normal);
                 this.mapType = type;
-
                 if(this.container.left == 'river-region'&&type !='river') {
                     this.riverRegionLayers.eachLayer(layer=>{
                         layer.setStyle({fillOpacity:0,dashArray:[5, 5, 1, 5],weight:2})
@@ -1236,7 +1269,6 @@
                         lng = ll[0];
                     }
 
-
                     this.posLayers.clearLayers();
                     let icon = new L.icon({iconUrl:'./static/images/pos.png',shadowUrl:null,iconSize:[32,32]})
                     let marker = this.posMarker = new L.marker([lat,lng],{icon:icon}).addTo(this.posLayers);
@@ -1244,11 +1276,12 @@
                         marker.bindTooltip('点击周边查询大坝',{permanent:true,direction:'top',interactive:true}).openTooltip();
                         marker.on('click', (e)=> {
 //                            this.onAddDb(e);
+                            this.sheetVisible = true;
                             this.around_form = {
                                 ...{lat:e.latlng.lat,
                                     lng:e.latlng.lng}
                             };
-                            this.around_dialog = true;
+                          //  this.around_dialog = true;
                         })
                     }
 
@@ -1260,6 +1293,39 @@
                     this.map.spin(false);
                     alert('code:'+e.code +'; message:' + e.message);
                 },{geocode:true,provider:'amap',timeout:6000})
+//
+//                this.posLayers.clearLayers();
+//                var lat = 30.223475116500158;
+//                var lng = 120.25360107421876;
+//                let icon = new L.icon({iconUrl:'./static/images/pos.png',shadowUrl:null,iconSize:[32,32]})
+//                let marker = this.posMarker = new L.marker([lat,lng],{icon:icon}).addTo(this.posLayers);
+////                if(this.login.id) {
+//                    marker.bindTooltip('点击周边查询大坝',{permanent:true,direction:'top',interactive:true}).openTooltip();
+//                    marker.on('click', (e)=> {
+////                            this.onAddDb(e);
+//                        this.sheetVisible = true;
+//                        this.around_form = {
+//                            ...{lat:e.latlng.lat,
+//                                lng:e.latlng.lng}
+//                        };
+//                        //  this.around_dialog = true;
+//                    })
+////                }
+//
+//                this.map.setView([lat,lng],16);
+
+            },
+            onShowSearchAround() {
+                this.around_dialog = true;
+                this.sheetVisible =  false;
+            },
+            onShowSearchList(){
+                this.sheetVisible =  false;
+                this.searchPopup = true;
+            },
+            onUpdateClick(db){
+                this.searchPopup = false;
+                this.onEditDb(db);
             },
             onGetPolygon(area){
                 this.form.area = area;
@@ -1272,6 +1338,7 @@
             onSearchAround(){
                 this.$refs['around-form'].validate(valid => {
                     if(valid) {
+                        this.measureLayers.clearLayers();
                         this.aroundSearch = true;
                         let list = [];
                         let marker = L.marker([this.around_form.lat,this.around_form.lng]).addTo(this.measureLayers);
@@ -1287,7 +1354,7 @@
                         let line = L.polyline([[this.around_form.lat,this.around_form.lng],[lat2,lng2]]).addTo(this.measureLayers);
                         L.marker.measurement(line.getCenter(),this.around_form.distance +'公里').addTo(this.measureLayers)
 
-                        this.dam.list.forEach(marker => {
+                        this.dam.all.forEach(marker => {
                             let lat = marker.latitude,
                                 lng = marker.longitude;
                             if(lat&&lng) {
@@ -1305,8 +1372,9 @@
                         this.rightSpan.name = '周边查询结果';
                         this.container.right = true;
                         this.around_dialog = false;
-
-                        this.$nextTick(()=>this.map.fitBounds(this.markerLayers.getBounds()));
+                        if(list.length>0) {
+                            this.$nextTick(()=>this.map.fitBounds(this.markerLayers.getBounds()));
+                        }
                     }
                 })
             },
@@ -1377,6 +1445,7 @@
                         this.legend = 'river';
                         this.renderMarkers(markers,'river');
                         this.rightSpan.list = markers;
+                        this.$refs['legend'].refresh();
                         setTimeout(()=> this.$nextTick(()=>this.map.fitBounds(this.riverRegionLayers.getBounds())),500)
 
                     }else{
@@ -1404,8 +1473,10 @@
                 this.regionLayers.clearLayers();
                 if(type == '地震') {
                     let circle = L.circle([data.lat,data.lng], {radius: Math.ceil(data.level)*10000}).addTo(this.regionLayers);
-                    circle.bindTooltip(`${data.time}</br>${data.addr}</br>深度：${data.deep}；级别：${data.level}`,{permanent:true})
-                    this.map.fitBounds(this.regionLayers.getBounds())
+                    circle.bindPopup(`${data.time}</br>${data.addr}</br>深度：${data.deep}；级别：${data.level}`);
+                    this.$nextTick(()=>{
+                        this.map.fitBounds(this.regionLayers.getBounds());
+                    })
                 }else {
                     let d = data[0];
                     this.typhoonLayers.clearLayers();
@@ -1709,13 +1780,10 @@
                 }
             },
             "dam.source"(data){
-                if(data.length>0) {
                     this.filterDam();
                     this.renderMarkers(data);
                     let len = this.markerLayers.getLayers().length;
                     this.count = this.count < len?len:this.count;
-
-                }
             },
             dialog(v){
                 if(!v) {
@@ -1729,8 +1797,13 @@
                 if(!v) {
                     if(this.riverRegionLayers.getLayers().length>0) {
                         this.$nextTick(()=>this.map.fitBounds(this.riverRegionLayers.getBounds()))
-                    }else{
-                        this.$nextTick(()=>this.map.fitBounds(this.markerLayers.getBounds()))
+                    }else if(this.regionLayers.getLayers().length>0) {
+                        this.$nextTick(()=>this.map.fitBounds(this.regionLayers.getBounds()))
+                    }else if(this.typhoonLayers.getLayers().length>0) {
+                        this.$nextTick(()=>this.map.fitBounds(this.typhoonLayers.getBounds()))
+                    }
+                    else{
+//                        this.$nextTick(()=>this.map.fitBounds(this.markerLayers.getBounds()))
                     }
 
                 }

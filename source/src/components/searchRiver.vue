@@ -236,6 +236,7 @@
                             pm.push(d);
                         }
                     });
+                    pm = list;
                     if(type == 'section' && pm.length <=2) {
                         return Toast({
                             message:'相关大坝数量少于2个，无法绘制剖面，请选择其他流域查看！',

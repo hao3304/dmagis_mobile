@@ -207,6 +207,14 @@
                 this.rightSpan.list = legend.children;
                 this.rightSpan.name = legend.name;
                 this.container.right = true;
+            },
+            refresh() {
+                this.loading = false;
+                this.layer.mode = '全国';
+                this.layer.state = ['已核','未核'];
+                this.$nextTick(()=>{
+                    this.loading = true;
+                })
             }
         },
         watch:{

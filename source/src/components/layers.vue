@@ -50,7 +50,9 @@
             change(active) {
                 if(this.layers.active != active) {
                     this.layers.active = active;
-                    this.$emit('change',active);
+                    setTimeout(()=>{
+                        this.$emit('change',active);
+                    },200)
                 }
             }
         }

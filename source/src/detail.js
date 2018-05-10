@@ -42,7 +42,12 @@ new Vue({
                         return `<a href="tel:${n}">${n}</a>`
                     }).join(',');
 
-                }else{
+                }
+                else if(obj.itemName == '汛限水位'){
+                    debugger
+                    return obj.itemValue.replace(/\n/g,"</br>");
+                }
+                else{
                     return obj.itemValue;
                 }
             }else{

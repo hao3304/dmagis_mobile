@@ -4,7 +4,7 @@
   <section>
    <div class="main">
     <mt-header  class="x-header" title="DamGIS" style="height: 46px;">
-     <mt-button slot="right" @click="onClick">
+     <mt-button slot="right" @click="onClick" v-show="login.id">
       <img src="./static/images/integratedQuery.png"  style="height: 25px;margin-top: 4px;" />
      </mt-button>
     </mt-header>
